@@ -46,7 +46,7 @@
                     <label for="connector_count">Connector Count:</label>
                     <input type="number" id="connector_count" placeholder="e.g., 4">
                 </div>
-                <button class="action-button" pys-onClick="calculate_and_display">Calculate</button>
+                <button id="calculate-button" class="action-button" pys-onClick="calculate_and_display">Calculate</button>
             </div>
             <div id="results-section">
                 <h2>Results</h2>
@@ -60,6 +60,10 @@
             <h2>OTDR Guide</h2>
             <div id="instructions-output">
                 </div>
+            <div class="image-container">
+                <img id="otdr-image" src="sample.png" alt="OTDR Example Trace" style="width:100%; cursor:pointer;">
+                <p style="text-align:center; font-size: 0.8rem;">Click image to view full size</p>
+            </div>
         </div>
     </main>
 
@@ -72,6 +76,6 @@
     </div>
 
     <py-script src="main.py"></py-script>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

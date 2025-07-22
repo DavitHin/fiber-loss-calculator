@@ -1,5 +1,4 @@
 from pyscript import document
-from js import alert
 
 # --- Data Store (Unchanged) ---
 FIBER_STANDARDS = {
@@ -10,7 +9,6 @@ FIBER_STANDARDS = {
 }
 
 def populate_instructions():
-    """Populates the instruction panel with detailed guidance."""
     instr_div = document.querySelector("#instructions-output")
     content = """Which Wavelength Report to Use?
 -----------------------------
@@ -18,7 +16,7 @@ def populate_instructions():
   Always use the 1550nm report as your reference. It is more sensitive to bends and losses, giving the most accurate splice count.
 
 ▪ Multi-Mode (OMx):
-  Use the 850nm report. This is the primary transmission wavelength and its higher loss provides a 'worst-case' scenario for a safe budget.
+  Use the 850nm report. This is the primary transmission wavelength and its higher natural loss provides a 'worst-case' scenario for a safe, conservative budget.
 
 Key Features to Identify
 -----------------------------
@@ -31,7 +29,6 @@ Key Features to Identify
     instr_div.innerText = content
 
 def populate_readme():
-    """Populates the readme modal with standards and links."""
     readme_div = document.querySelector("#readme-text")
     content = """
     <h2>Standards & References</h2>
@@ -54,7 +51,7 @@ def populate_readme():
     readme_div.innerHTML = content
 
 def calculate_and_display(*args, **kwargs):
-    """Calculates and displays the loss budget."""
+    output_div = document.querySelector("#results-output")
     try:
         fiber_type = document.querySelector("#fiber_type").value
         distance_m = float(document.querySelector("#distance").value)
@@ -62,17 +59,14 @@ def calculate_and_display(*args, **kwargs):
         connector_count = int(document.querySelector("#connector_count").value)
         
         params = FIBER_STANDARDS[fiber_type]
-        output_div = document.querySelector("#results-output")
-        
         max_dist = params['max_distance_m']
         if distance_m > max_dist:
-            alert(f"Length Error: The entered distance of {distance_m}m exceeds the recommended maximum of {max_dist}m for {fiber_type}.")
-            output_div.innerText = "Calculation stopped due to length error."
+            alert_text = f"Length Error: The entered distance of {distance_m}m exceeds the recommended maximum of {max_dist}m for {fiber_type}."
+            document.querySelector("#results-output").innerText = f"❌ {alert_text}"
             return
 
         result_text = f"📊 Link Loss Budget for {params['name']}\n"
         result_text += "--------------------------------------\n\n"
-
         for wl, atten in params['wavelengths'].items():
             max_loss = (distance_m / 1000 * atten['max_attenuation_db_km']) + (splice_count * params['splice_loss']['max_db']) + (connector_count * params['connector_loss']['max_db'])
             typ_loss = (distance_m / 1000 * atten['typical_attenuation_db_km']) + (splice_count * params['splice_loss']['typical_db']) + (connector_count * params['connector_loss']['typical_db'])
@@ -83,9 +77,10 @@ def calculate_and_display(*args, **kwargs):
         output_div.innerText = result_text
 
     except ValueError:
-        output_div = document.querySelector("#results-output")
         output_div.innerText = "❌ Input Error: Please ensure all fields have valid numbers."
+    except Exception as e:
+        output_div.innerText = f"An unexpected error occurred: {e}"
 
-# --- Run initial setup functions ---
+# --- Run initial setup functions when script loads ---
 populate_instructions()
 populate_readme()
