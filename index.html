@@ -3,22 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fiber Optic Loss Budget Calculator</title>
+    <title>Advanced Fiber Optic Loss Calculator</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="panel" id="input-panel">
-            <div class="panel-header">
-                <h2>Input Parameters</h2>
+    <header>
+        <h1>Fiber Optic Loss Budget Calculator</h1>
+        <div class="top-controls">
+            <button id="readme-button" class="action-button">Readme & Links</button>
+            <div class="font-controls">
+                <span>Font Size:</span>
+                <button id="font-decrease">-</button>
+                <button id="font-increase">+</button>
             </div>
-            <div class="panel-body">
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="panel" id="calculator-panel">
+            <div id="input-section">
+                <h2>Input Parameters</h2>
                 <div class="form-group">
                     <label for="fiber_type">Fiber Type:</label>
                     <select id="fiber_type">
-                        <option value="OS2" selected>OS2 (Single-Mode)</option>
+                        <option value="OS2">OS2 (Single-Mode)</option>
                         <option value="OM3">OM3</option>
                         <option value="OM4">OM4</option>
                         <option value="OM5">OM5</option>
@@ -26,37 +36,42 @@
                 </div>
                 <div class="form-group">
                     <label for="distance">Distance (meters):</label>
-                    <input type="number" id="distance" value="7822">
+                    <input type="number" id="distance" placeholder="e.g., 8000">
                 </div>
                 <div class="form-group">
                     <label for="splice_count">Splice Count:</label>
-                    <input type="number" id="splice_count" value="6">
+                    <input type="number" id="splice_count" placeholder="e.g., 6">
                 </div>
                 <div class="form-group">
                     <label for="connector_count">Connector Count:</label>
-                    <input type="number" id="connector_count" value="4">
+                    <input type="number" id="connector_count" placeholder="e.g., 4">
                 </div>
-                <button id="calculate_button" class="action-button">Calculate</button>
+                <button class="action-button" pys-onClick="calculate_and_display">Calculate</button>
+            </div>
+            <div id="results-section">
+                <h2>Results</h2>
+                <div id="results-output">
+                    Results will appear here.
+                </div>
             </div>
         </div>
 
-        <div class="panel" id="output-panel">
-            <div class="panel-header">
-                <h2>Results</h2>
-            </div>
-            <div class="panel-body">
-                <div id="results-output">
-                    Enter your link parameters and click "Calculate".
+        <div class="panel" id="instructions-panel">
+            <h2>OTDR Guide</h2>
+            <div id="instructions-output">
                 </div>
-            </div>
+        </div>
+    </main>
+
+    <div id="readme-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="readme-text">
+                </div>
         </div>
     </div>
 
-    <py-config>
-        packages = []
-        files = ["./main.py"]
-    </py-config>
-
-    <script type="py" src="./main.py" config='{"packages":[]}'></script>
+    <py-script src="main.py"></py-script>
+    <script src="script.js"></script>
 </body>
 </html>
