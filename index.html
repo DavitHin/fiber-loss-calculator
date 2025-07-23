@@ -6,8 +6,8 @@
     <title>Advanced Fiber Optic Loss Budget Calculator</title>
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.5/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/babel-standalone@7.22.5/babel.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; }
         textarea { resize: none; }
@@ -212,7 +212,7 @@
                                             />
                                         </div>
                                         <div className="mt-2">
-                                            <label className="block">Connector Count:</label>
+                                            <label className="block">Connector Count:</ NotSupported
                                             <input
                                                 type="text"
                                                 value={connectorCount}
@@ -244,7 +244,7 @@
                                         <p><strong>▪ Single-Mode (OS2):</strong> Always use the 1550nm report as your reference. It is more sensitive to bends and losses, giving you the most accurate splice count for your budget.</p>
                                         <p><strong>▪ Multi-Mode (OMx):</strong> Use the 850nm report. This is the primary transmission wavelength and its higher natural loss provides a 'worst-case' scenario for a safe, conservative budget.</p>
                                         <h4 className="text-lg font-bold mt-2">Key Features to Identify (using an OS2 1550nm report as an example):</h4>
-                                        <p><strong>1. Fusion Splices (e.g., Event 3 at 2820.13m)</strong><br />A small, sharp drop with no reflection. A loss of &lt;0.1 dB (like 0.042 dB) is a high-quality splice.</p>
+                                        <p><strong>1. Fusion Splices (e.g., Event 3 at 2820.13m)</strong><br />A small, sharp drop with no reflection. A loss of <0.1 dB (like 0.042 dB) is a high-quality splice.</p>
                                         <p><strong>2. End of Fiber (e.g., Event 8 at 7822.36m)</strong><br />The final event is a large reflective spike, marking the end of the line.</p>
                                     </div>
                                 </div>
