@@ -1,1 +1,3 @@
 Flask==2.3.2
+streamlit==1.29.0  # Latest stable as of now
+pillow==10.0.0     # For image handling (preserved from your code)
