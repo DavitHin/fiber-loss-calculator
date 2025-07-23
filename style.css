@@ -1,95 +1,67 @@
-/* Base and Theme */
-:root {
-    --font-size: 16px; /* Base font size */
-}
-
 body {
-    font-family: "Hanuman", "Cambria", sans-serif;
-    background-color: #2E2E2E;
-    color: #FFFFFF;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #F0F0F0;
     margin: 0;
     padding: 20px;
-    font-size: var(--font-size);
 }
-
-/* Header and Controls */
-header { text-align: center; margin-bottom: 20px; }
-h1 { color: #569CD6; font-size: 2rem; }
-h2 { color: #D4D4D4; font-size: 1.5rem; border-bottom: 1px solid #505050; padding-bottom: 5px; margin-top: 0;}
-
-.top-controls { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 10px; }
-.font-controls { display: flex; align-items: center; gap: 5px; }
-.font-controls button { width: 30px; height: 30px; font-size: 1rem; }
-
-/* Main Layout */
-.container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-.panel {
-    background-color: #3C3C3C;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    flex: 1;
-    min-width: 400px;
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+h1 {
+    color: #003399;
+}
+nav a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #0000EE;
+}
+.container {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    max-width: 1000px;
+    margin: 0 auto;
 }
-#calculator-panel { flex-grow: 1.5; }
-
-/* Forms and Buttons */
-.form-group { margin-bottom: 1rem; }
-label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-input, select {
+.input-section, .output-section {
+    width: 45%;
+    background: #FFFFFF;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.form label {
+    display: block;
+    margin: 10px 0 5px;
+}
+.form input, .form select {
     width: 100%;
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #505050;
-    background-color: #1E1E1E;
-    color: #FFFFFF;
-    box-sizing: border-box;
-    font-size: 1rem;
+    padding: 8px;
+    margin-bottom: 10px;
 }
-.action-button {
-    padding: 10px 15px;
+.buttons {
+    text-align: center;
+}
+button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    background-color: #003399;
+    color: white;
     border: none;
-    border-radius: 4px;
-    background-color: #569CD6;
-    color: #FFFFFF;
-    font-size: 1rem;
-    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
-.action-button:hover { background-color: #4A8DC2; }
-
-/* Output and Instruction Areas */
-#results-section { margin-top: 20px; }
-#results-output, #instructions-output {
-    background-color: #1E1E1E;
-    padding: 15px;
-    border-radius: 4px;
-    white-space: pre-wrap;
-    font-family: "Courier New", Courier, monospace;
-    font-size: 0.9rem;
-    flex-grow: 1;
+button:hover {
+    background-color: #002266;
 }
-.image-container { margin-top: 15px; }
-
-/* Modal for Readme */
-.modal {
-    display: none; position: fixed; z-index: 1000;
-    left: 0; top: 0; width: 100%; height: 100%;
-    overflow: auto; background-color: rgba(0,0,0,0.6);
+#result h2 {
+    color: #003399;
 }
-.modal-content {
-    background-color: #3C3C3C; margin: 10% auto; padding: 20px;
-    border: 1px solid #888; width: 80%; max-width: 650px;
-    border-radius: 8px; position: relative;
+.pass {
+    color: #3CB371;
 }
-.close-button {
-    color: #aaa; position: absolute; top: 10px; right: 20px;
-    font-size: 28px; font-weight: bold; cursor: pointer;
+.error {
+    color: red;
 }
-#readme-text { font-size: 0.9rem; }
-#readme-text h2, #readme-text h3 { color: #569CD6; }
-#readme-text a { color: #6CB4EE; text-decoration: none; }
-#readme-text a:hover { text-decoration: underline; }
+hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+}
