@@ -1,4 +1,4 @@
-// Data Store (Unchanged)
+// === Section: Data Store ===
 const FIBER_STANDARDS = {
     'OS2': {
         'name': 'Single-Mode (ITU-T G.652.D)', 'max_distance_m': 10000,
@@ -26,13 +26,12 @@ const FIBER_STANDARDS = {
     }
 };
 
-// Global results for PDF
-let lastResults = null;
-
-// Segment Management
+// === Section: Global Variables ===
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
+let lastResults = null; // For PDF export
 
+// === Section: Segment Management ===
 function addSegment() {
     if (segments >= 3) return;
     saveSegmentData(); // Save current before adding
@@ -221,7 +220,7 @@ function validateAndToggleButton() {
     return valid;
 }
 
-// Calculation (Unchanged, but max length now handled in validation)
+// Calculation
 function calculate() {
     if (!validateAndToggleButton()) {
         return;
@@ -337,7 +336,7 @@ function exportPDF() {
     doc.save('loss-budget.pdf');
 }
 
-// Copy Results (Unchanged)
+// Copy Results (Unchanged, but added inline confirmation)
 function copyResults() {
     const output = document.getElementById('output');
     const range = document.createRange();
