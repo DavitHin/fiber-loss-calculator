@@ -1,31 +1,30 @@
-// Data Store (Updated with 100G Budgets - Approximate from IEEE 802.3 for 100GBASE)
+// Data Store (Updated with 25G/50G/100G Budgets - Approx from IEEE 802.3)
 const FIBER_STANDARDS = {
     'OS2': {
         'name': 'Single-Mode (ITU-T G.652.D)', 'max_distance_m': 10000,
         'wavelengths': {'1310nm': {'max_attenuation_db_km': 0.4, 'typical_attenuation_db_km': 0.35}, '1550nm': {'max_attenuation_db_km': 0.3, 'typical_attenuation_db_km': 0.22}},
         'splice_loss': {'max_db': 0.3, 'typical_db': 0.05}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.25},
-        'budgets': {'100G': 5} // Approx for 100GBASE-LR4 (long reach SMF; verify standards)
+        'budgets': {'25G': 6, '50G': 5, '100G': 5} // Approx; 25GBASE-LR ~6 dB, 50G/100G lower for DC interconnects
     },
     'OM3': {
         'name': 'Multimode OM3', 'max_distance_m': 300,
         'wavelengths': {'850nm': {'max_attenuation_db_km': 3.0, 'typical_attenuation_db_km': 2.5}, '1300nm': {'max_attenuation_db_km': 1.5, 'typical_attenuation_db_km': 0.8}},
         'splice_loss': {'max_db': 0.3, 'typical_db': 0.1}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.3},
-        'budgets': {'100G': 1.5} // Approx for 100GBASE-SR4 (short reach MMF)
+        'budgets': {'25G': 1.8, '50G': 1.6, '100G': 1.5} // Approx for short-reach MMF
     },
     'OM4': {
         'name': 'Multimode OM4', 'max_distance_m': 400,
         'wavelengths': {'850nm': {'max_attenuation_db_km': 3.0, 'typical_attenuation_db_km': 2.5}, '1300nm': {'max_attenuation_db_km': 1.5, 'typical_attenuation_db_km': 0.8}},
         'splice_loss': {'max_db': 0.3, 'typical_db': 0.1}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.3},
-        'budgets': {'100G': 1.5}
+        'budgets': {'25G': 1.8, '50G': 1.6, '100G': 1.5}
     },
     'OM5': {
         'name': 'Multimode OM5', 'max_distance_m': 440,
         'wavelengths': {'850nm': {'max_attenuation_db_km': 3.0, 'typical_attenuation_db_km': 2.4}, '953nm': {'max_attenuation_db_km': 2.2, 'typical_attenuation_db_km': 1.9}},
         'splice_loss': {'max_db': 0.3, 'typical_db': 0.1}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.3},
-        'budgets': {'100G': 1.5}
+        'budgets': {'25G': 1.8, '50G': 1.6, '100G': 1.5}
     }
 };
-
 // Segment Management (Fixed: Preserve state with array)
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
@@ -202,7 +201,7 @@ function validateAndToggleButton() {
     return valid;
 }
 
-// Calculation (Updated to 100G default)
+// Calculation (Updated to show table for 25G/50G/100G Pass/Fail)
 function calculate() {
     if (!validateAndToggleButton()) {
         return;
@@ -229,7 +228,7 @@ function calculate() {
 
         if (distance > params.max_distance_m / 1000) {
             document.getElementById(`distance-${segId}-error`).textContent = `Exceeds max for ${fiberType} (${params.max_distance_m / 1000} km).`;
-            validateAndToggleButton(); // Re-validate to disable button
+            validateAndToggleButton(); // Re-validate
             return;
         }
 
@@ -245,11 +244,17 @@ function calculate() {
 
     const totalLoss = totalFiberLoss + totalSpliceLoss + totalConnectorLoss + safetyMargin;
 
-    // 100G budget (use first segment's fiber)
+    // Budgets for 25G/50G/100G (use first segment's fiber)
     const firstFiber = document.getElementById('fiber-type-1').value;
-    const budget = FIBER_STANDARDS[firstFiber].budgets['100G'];
-    const margin = budget - totalLoss;
-    const status = margin >= 0 ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+    const budgets = FIBER_STANDARDS[firstFiber].budgets;
+    let budgetOutput = '<h2>Budget Analysis (Ethernet Examples)</h2><table class="output-table"><tr><th>Speed</th><th>Budget (dB)</th><th>Margin (dB)</th><th>Status</th></tr>';
+    ['25G', '50G', '100G'].forEach(speed => {
+        const budget = budgets[speed];
+        const margin = budget - totalLoss;
+        const status = margin >= 0 ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+        budgetOutput += `<tr><td>${speed}</td><td>${budget}</td><td>${margin.toFixed(2)}</td><td>${status}</td></tr>`;
+    });
+    budgetOutput += '</table>';
 
     let output = '<h1>📊 Link Loss Budget Results</h1>';
     output += `<p>Total Distance: ${totalDistance.toFixed(2)} km | Safety Margin: ${safetyMargin} dB</p>`;
@@ -259,14 +264,13 @@ function calculate() {
     output += `<tr><td>Connector Loss</td><td>${totalConnectorLoss.toFixed(2)}</td></tr>`;
     output += `<tr><td>Safety Margin</td><td>${safetyMargin.toFixed(2)}</td></tr>`;
     output += `<tr><th>Total Loss</th><th>${totalLoss.toFixed(2)}</th></tr></table>`;
-    output += `<p>Budget (100G Ethernet Example): ${budget} dB | Margin: ${margin.toFixed(2)} dB | Status: ${status}</p>`;
+    output += budgetOutput;
     output += '<p><em>Values based on standards; <a href="#" onclick="showReadme()">verify in Readme</a>.</em></p>';
     output += '<canvas id="loss-chart"></canvas>';
 
     document.getElementById('output').innerHTML = output;
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
 }
-
 // Draw Simple Bar Chart
 function drawChart(fiber, splice, connector, margin) {
     const canvas = document.getElementById('loss-chart');
