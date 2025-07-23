@@ -46,26 +46,30 @@ body.dark .tab-button.active { background: #2E2E2E; border-bottom: 3px solid #56
 .content-text h1 { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
 .content-text h2 { font-size: 1.1em; font-weight: bold; margin: 15px 0 5px; }
 
-/* Segment Styling (Enhanced Side-by-Side Layout) */
-.segment { border: 1px solid #DDD; border-radius: 8px; padding: 20px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr; gap: 15px; }
-body.dark .segment { border: 1px solid #555; }
-.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; grid-column: 1 / -1; }
+/* Segment Styling (Enhanced Dynamic Layout) */
+.segment { border: 1px solid #DDD; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+body.dark .segment { border: 1px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .segment-header h3 { margin: 0; }
 .remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; }
 .remove-segment:hover { background: #CC0000; }
 
-/* Label-Input Pairs (Left: Label, Right: Input) */
-.segment .pair { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: center; }
-.segment label { text-align: left; font-weight: bold; white-space: nowrap; }
-.segment select, .segment input { width: 100%; }
+/* Input Pairs (Left Label, Right Input - Dynamic on Desktop) */
+.segment .inputs-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+@media (min-width: 768px) {
+    .segment .inputs-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+}
+.pair { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+.pair label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 120px; } /* Fixed min-width for alignment */
+.pair select, .pair input { width: 100%; }
 
-/* Global Inputs (Same Alignment) */
-.global-inputs .pair { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: center; margin-bottom: 10px; }
-.global-inputs label { text-align: left; font-weight: bold; white-space: nowrap; }
+/* Global Inputs (Same) */
+.global-inputs .pair { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
+.global-inputs label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 120px; }
 
 /* Validation */
 .input-error { border: 2px solid #FF0000 !important; }
-.error-message { color: #FF0000; font-size: 0.9em; margin-top: -5px; grid-column: 2; }
+.error-message { color: #FF0000; font-size: 0.9em; margin-top: -5px; grid-column: 2 / span 1; }
 #validation-summary { color: #FF0000; font-size: 1em; }
 
 /* Output */
@@ -104,7 +108,7 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
 /* Responsiveness */
 @media (max-width: 600px) {
     .controls { flex-direction: column; align-items: flex-start; }
-    .segment .pair, .global-inputs .pair { grid-template-columns: 1fr; }
+    .pair { grid-template-columns: 1fr; }
     .error-message { grid-column: 1; }
     .tabs { flex-direction: column; }
     .tab-button { margin: 5px 0; }
