@@ -68,6 +68,9 @@ body.dark .segment { border: 1px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.
 .global-inputs label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 100px; }
 #custom-inputs .pair { margin-bottom: 15px; } /* Consistent spacing for customs */
 
+/* Buttons (Centered) */
+.segment-controls, .buttons { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+
 /* Validation */
 .input-error { border: 2px solid #FF0000 !important; }
 .error-message { color: #FF0000; font-size: 0.9em; margin-top: -5px; grid-column: 2 / span 1; }
@@ -108,7 +111,7 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
 
 /* Responsiveness */
 @media (min-width: 768px) {
-    #segments-container { flex-wrap: wrap; justify-content: center; } /* Centered side-by-side */
+    #segments-container { flex-wrap: wrap; justify-content: center; } /* Centered side-by-side on desktop */
 }
 @media (max-width: 600px) {
     .controls { flex-direction: column; align-items: flex-start; }
@@ -120,4 +123,5 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
     .segment { max-width: 100%; }
     .global-inputs { max-width: 100%; }
     .output-section { max-width: 100%; }
+    .segment-controls, .buttons { justify-content: flex-start; } /* Left on mobile for better touch */
 }
