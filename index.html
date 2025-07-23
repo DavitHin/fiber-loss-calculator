@@ -3,282 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Fiber Optic Loss Calculator</title>
-    
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
-
+    <title>Advanced Fiber Optic Loss Budget Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babel-standalone@7.22.5/babel.min.js"></script>
     <style>
-        :root {
-            --content-font-size: 16px; /* Base font size for content */
-        }
-        body {
-            font-family: "Hanuman", "Cambria", sans-serif;
-            background-color: #2E2E2E;
-            color: #FFFFFF;
-            margin: 0;
-            padding: 20px;
-            font-size: 16px; /* Fixed base font size */
-        }
-        header { text-align: center; margin-bottom: 20px; }
-        h1 { color: #569CD6; font-size: 2em; }
-        h2 { color: #D4D4D4; font-size: 1.5em; border-bottom: 1px solid #505050; padding-bottom: 5px; margin-top: 0;}
-
-        .top-controls { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 10px; }
-        .font-controls { display: flex; align-items: center; gap: 5px; background-color: #3C3C3C; padding: 5px 10px; border-radius: 8px; }
-        .font-controls span { font-size: 14px; }
-        .font-controls button { width: 30px; height: 30px; font-size: 16px; }
-
-        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-        .panel {
-            background-color: #3C3C3C;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            flex: 1;
-            min-width: 400px;
-            font-size: var(--content-font-size); /* Use the CSS variable here */
-        }
-        #calculator-panel { flex-grow: 1.5; }
-
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        input, select {
-            width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #505050;
-            background-color: #1E1E1E; color: #FFFFFF; box-sizing: border-box; font-size: 1em;
-        }
-        .action-button {
-            padding: 10px 15px; border: none; border-radius: 4px; background-color: #569CD6;
-            color: #FFFFFF; font-size: 1em; font-weight: bold; cursor: pointer; transition: background-color 0.3s;
-        }
-        .action-button:hover { background-color: #4A8DC2; }
-
-        #results-output, #instructions-output {
-            background-color: #1E1E1E; padding: 15px; border-radius: 4px; min-height: 150px;
-            white-space: pre-wrap; font-family: "Courier New", Courier, monospace; font-size: 0.9em;
-        }
-        .image-container { margin-top: 15px; text-align: center;}
-
-        /* Modal for Readme */
-        .modal {
-            display: none; position: fixed; z-index: 1000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            overflow: auto; background-color: rgba(0,0,0,0.6);
-        }
-        .modal-content {
-            background-color: #3C3C3C; margin: 10% auto; padding: 20px;
-            border: 1px solid #888; width: 80%; max-width: 650px;
-            border-radius: 8px; position: relative; font-size: var(--content-font-size);
-        }
-        .close-button {
-            color: #aaa; position: absolute; top: 10px; right: 20px;
-            font-size: 28px; font-weight: bold; cursor: pointer;
-        }
-        #readme-text a { color: #6CB4EE; }
+        body { font-family: 'Segoe UI', sans-serif; }
+        textarea { resize: none; }
+        a { cursor: pointer; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .scrollable-text { overflow-y: auto; max-height: 300px; }
+        .link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Fiber Optic Loss Budget Calculator</h1>
-        <div class="top-controls">
-            <button id="readme-button" class="action-button">Readme & Links</button>
-            <div class="font-controls">
-                <span>Content Font:</span>
-                <button id="font-decrease">-</button>
-                <button id="font-increase">+</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="panel" id="calculator-panel">
-            <div id="input-section">
-                <h2>Input Parameters</h2>
-                <div class="form-group">
-                    <label for="fiber_type">Fiber Type:</label>
-                    <select id="fiber_type">
-                        <option value="OS2">OS2 (Single-Mode)</option>
-                        <option value="OM3">OM3</option>
-                        <option value="OM4">OM4</option>
-                        <option value="OM5">OM5</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="distance">Distance (meters):</label>
-                    <input type="number" id="distance" placeholder="e.g., 8000">
-                </div>
-                <div class="form-group">
-                    <label for="splice_count">Splice Count:</label>
-                    <input type="number" id="splice_count" placeholder="e.g., 6">
-                </div>
-                <div class="form-group">
-                    <label for="connector_count">Connector Count:</label>
-                    <input type="number" id="connector_count" placeholder="e.g., 4">
-                </div>
-                <button id="calculate-button" class="action-button" pys-onClick="calculate_and_display">Calculate</button>
-            </div>
-            <div id="results-section" style="margin-top: 20px;">
-                <h2>Results</h2>
-                <div id="results-output">
-                    Results will appear here.
-                </div>
-            </div>
-        </div>
-
-        <div class="panel" id="instructions-panel">
-            <h2>OTDR Guide</h2>
-            <div id="instructions-output"></div>
-            <div class="image-container">
-                <img id="otdr-image" src="sample.png" alt="OTDR Example Trace" style="width:100%; cursor:pointer;">
-                <p style="text-align:center; font-size: 0.8em;">Click image to view full size</p>
-            </div>
-        </div>
-    </main>
-
-    <div id="readme-modal" class="modal">
-        <div class="modal-content">
-            <span id="close-button" class="close-button">&times;</span>
-            <div id="readme-text"></div>
-        </div>
-    </div>
-
-    <py-script>
-        from pyscript import document
-
-        # --- Data Store ---
-        FIBER_STANDARDS = {
-            'OS2': {'name': 'Single-Mode (ITU-T G.652.D)', 'max_distance_m': 10000, 'wavelengths': {'1310nm': {'max_attenuation_db_km': 0.4, 'typical_attenuation_db_km': 0.35}, '1550nm': {'max_attenuation_db_km': 0.3, 'typical_attenuation_db_km': 0.22}}, 'splice_loss': {'max_db': 0.3, 'typical_db': 0.05}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.25}},
-            'OM3': {'name': 'Multimode OM3', 'max_distance_m': 300, 'wavelengths': {'850nm': {'max_attenuation_db_km': 3.0, 'typical_attenuation_db_km': 2.5}, '1300nm': {'max_attenuation_db_km': 1.5, 'typical_attenuation_db_km': 0.8}}, 'splice_loss': {'max_db': 0.3, 'typical_db': 0.1}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.3}},
-            'OM4': {'name': 'Multimode OM4', 'max_distance_m': 400, 'wavelengths': {'850nm': {'max_attenuation_db_km': 3.0, 'typical_attenuation_db_km': 2.5}, '1300nm': {'max_attenuation_db_km': 1.5, 'typical_attenuation_db_km': 0.8}}, 'splice_loss': {'max_db': 0.3, 'typical_db': 0.1}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.3}},
-            'OM5': {'name': 'Multimode OM5', 'max_distance_m': 440, 'wavelengths': {'850nm': {'max_attenuation_db_km': 3.0, 'typical_attenuation_db_km': 2.4}, '953nm': {'max_attenuation_db_km': 2.2, 'typical_attenuation_db_km': 1.9}}, 'splice_loss': {'max_db': 0.3, 'typical_db': 0.1}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.3}}
-        }
-
-        def populate_instructions():
-            instr_div = document.querySelector("#instructions-output")
-            content = """Which Wavelength Report to Use?
------------------------------
-▪ Single-Mode (OS2):
-  Always use the 1550nm report as your reference. It is more sensitive to bends and losses, giving the most accurate splice count.
-
-▪ Multi-Mode (OMx):
-  Use the 850nm report. This is the primary transmission wavelength and its higher natural loss provides a 'worst-case' scenario for a safe, conservative budget.
-
-Key Features to Identify
------------------------------
-1. Fusion Splices:
-   A small, sharp drop with no reflection. A loss of <0.1 dB is excellent.
-
-2. End of Fiber:
-   The final event is a large reflective spike, marking the end of the line.
-"""
-            instr_div.innerText = content
-
-        def populate_readme():
-            readme_div = document.querySelector("#readme-text")
-            content = """
-            <h2>Standards & References</h2>
-            <p>This calculator uses parameters from major industry standards.</p>
-            
-            <h3>Official Standards</h3>
-            <p>▪ <b>ITU-T G.652:</b> Defines attenuation (dB/km) for single-mode fiber.<br>
-               <a href="https://www.itu.int/rec/T-REC-G.652" target="_blank">View Standard</a></p>
-            <p>▪ <b>TIA-568 Series:</b> Sets max loss for connectors (0.75 dB) and splices (0.3 dB).<br>
-               <a href="https://www.tiaonline.org/products-and-services/standards/" target="_blank">View Publisher</a></p>
-            <p>▪ <b>ISO/IEC 11801:</b> The international equivalent of TIA-568.<br>
-               <a href="https://www.iso.org/committee/45838.html" target="_blank">View Committee</a></p>
-
-            <h3>Additional Learning Resources</h3>
-            <p>▪ Understanding Fiber Loss Calculation<br>
-               <a href="https://www.fs.com/blog/understanding-fiber-loss-what-is-it-and-how-to-calculate-it-3792.html" target="_blank">Read on FS.com</a></p>
-            <p>▪ Single-Mode vs. Multi-Mode Fiber Types<br>
-               <a href="https://www.fs.com/blog/fiber-optic-cable-types-single-mode-vs-multimode-fiber-cable-1310.html" target="_blank">Read on FS.com</a></p>
-            """
-            readme_div.innerHTML = content
-
-        def calculate_and_display(*args, **kwargs):
-            output_div = document.querySelector("#results-output")
-            try:
-                fiber_type = document.querySelector("#fiber_type").value
-                distance_m = float(document.querySelector("#distance").value)
-                splice_count = int(document.querySelector("#splice_count").value)
-                connector_count = int(document.querySelector("#connector_count").value)
-                
-                params = FIBER_STANDARDS[fiber_type]
-                max_dist = params['max_distance_m']
-                if distance_m > max_dist:
-                    output_div.innerText = f"❌ Length Error:\nThe entered distance of {distance_m}m exceeds the recommended maximum of {max_dist}m for {fiber_type}."
-                    return
-
-                result_text = f"📊 Link Loss Budget for {params['name']}\n"
-                result_text += "--------------------------------------\n\n"
-                for wl, atten in params['wavelengths'].items():
-                    max_loss = (distance_m / 1000 * atten['max_attenuation_db_km']) + (splice_count * params['splice_loss']['max_db']) + (connector_count * params['connector_loss']['max_db'])
-                    typ_loss = (distance_m / 1000 * atten['typical_attenuation_db_km']) + (splice_count * params['splice_loss']['typical_db']) + (connector_count * params['connector_loss']['typical_db'])
-                    result_text += f"📈 Results for Wavelength: {wl}\n"
-                    result_text += f"  - Max Acceptable Loss: {max_loss:.2f} dB\n"
-                    result_text += f"  - Typical Good Performance: {typ_loss:.2f} dB\n\n"
-                
-                output_div.innerText = result_text
-
-            except ValueError:
-                output_div.innerText = "❌ Input Error: Please ensure all fields have valid numbers."
-            except Exception as e:
-                output_div.innerText = f"An unexpected error occurred: {e}"
-
-        # --- Run initial setup functions when PyScript loads ---
-        populate_instructions()
-        populate_readme()
-
-    </py-script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Modal Logic ---
-            const modal = document.getElementById('readme-modal');
-            const readmeBtn = document.getElementById('readme-button');
-            const closeBtn = document.getElementById('close-button');
-
-            readmeBtn.onclick = () => { modal.style.display = 'block'; };
-            closeBtn.onclick = () => { modal.style.display = 'none'; };
-            window.onclick = (event) => {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            };
-
-            // --- Font Size Logic ---
-            const fontIncreaseBtn = document.getElementById('font-increase');
-            const fontDecreaseBtn = document.getElementById('font-decrease');
-            const root = document.documentElement;
-
-            let currentFontSize = 16;
-            root.style.setProperty('--content-font-size', `${currentFontSize}px`);
-
-            fontIncreaseBtn.onclick = () => {
-                if (currentFontSize < 22) { // Max size
-                    currentFontSize += 1;
-                    root.style.setProperty('--content-font-size', `${currentFontSize}px`);
-                }
-            };
-            
-            fontDecreaseBtn.onclick = () => {
-                if (currentFontSize > 12) { // Min size
-                    currentFontSize -= 1;
-                    root.style.setProperty('--content-font-size', `${currentFontSize}px`);
-                }
-            };
-
-            // --- Image Click Logic ---
-            const image = document.getElementById('otdr-image');
-            if (image) {
-                image.onclick = () => {
-                    // Check if the image source is a real file, not a placeholder
-                    if (image.src && !image.src.includes('data:image')) {
-                         window.open(image.src, '_blank');
-                    }
-                };
+    <div id="root"></div>
+    <script type="text/babel">
+        const FIBER_STANDARDS = {
+            'OS2': {
+                name: 'Single-Mode (ITU-T G.652.D)', max_distance_m: 10000,
+                wavelengths: {
+                    '1310nm': { max_attenuation_db_km: 0.4, typical_attenuation_db_km: 0.35 },
+                    '1550nm': { max_attenuation_db_km: 0.3, typical_attenuation_db_km: 0.22 }
+                },
+                splice_loss: { max_db: 0.3, typical_db: 0.05 },
+                connector_loss: { max_db: 0.75, typical_db: 0.25 }
+            },
+            'OM3': {
+                name: 'Multimode OM3', max_distance_m: 300,
+                wavelengths: {
+                    '850nm': { max_attenuation_db_km: 3.0, typical_attenuation_db_km: 2.5 },
+                    '1300nm': { max_attenuation_db_km: 1.5, typical_attenuation_db_km: 0.8 }
+                },
+                splice_loss: { max_db: 0.3, typical_db: 0.1 },
+                connector_loss: { max_db: 0.75, typical_db: 0.3 }
+            },
+            'OM4': {
+                name: 'Multimode OM4', max_distance_m: 400,
+                wavelengths: {
+                    '850nm': { max_attenuation_db_km: 3.0, typical_attenuation_db_km: 2.5 },
+                    '1300nm': { max_attenuation_db_km: 1.5, typical_attenuation_db_km: 0.8 }
+                },
+                splice_loss: { max_db: 0.3, typical_db: 0.1 },
+                connector_loss: { max_db: 0.75, typical_db: 0.3 }
+            },
+            'OM5': {
+                name: 'Multimode OM5', max_distance_m: 440,
+                wavelengths: {
+                    '850nm': { max_attenuation_db_km: 3.0, typical_attenuation_db_km: 2.4 },
+                    '953nm': { max_attenuation_db_km: 2.2, typical_attenuation_db_km: 1.9 }
+                },
+                splice_loss: { max_db: 0.3, typical_db: 0.1 },
+                connector_loss: { max_db: 0.75, typical_db: 0.3 }
             }
-        });
+        };
+
+        const LossCalculatorApp = () => {
+            const [fiberType, setFiberType] = React.useState('OS2');
+            const [distance, setDistance] = React.useState('');
+            const [spliceCount, setSpliceCount] = React.useState('');
+            const [connectorCount, setConnectorCount] = React.useState('');
+            const [fontSize, setFontSize] = React.useState(16);
+            const [isDarkMode, setIsDarkMode] = React.useState(false);
+            const [activeTab, setActiveTab] = React.useState('calculator');
+            const [results, setResults] = React.useState('');
+            const [showReadme, setShowReadme] = React.useState(false);
+
+            const theme = isDarkMode
+                ? { bg: 'bg-gray-800', fg: 'text-white', entryBg: 'bg-gray-700', textBg: 'bg-gray-900', headerFg: 'text-blue-400', linkFg: 'text-blue-300' }
+                : { bg: 'bg-gray-100', fg: 'text-black', entryBg: 'bg-white', textBg: 'bg-white', headerFg: 'text-blue-800', linkFg: 'text-blue-600' };
+
+            const handleCalculate = () => {
+                try {
+                    const params = FIBER_STANDARDS[fiberType];
+                    const distance_m = parseFloat(distance);
+                    const splices = parseInt(spliceCount);
+                    const connectors = parseInt(connectorCount);
+
+                    if (isNaN(distance_m) || isNaN(splices) || isNaN(connectors)) {
+                        alert('Please enter valid numbers for distance, splices, and connectors.');
+                        return;
+                    }
+
+                    if (distance_m > params.max_distance_m) {
+                        alert(`The entered distance of ${distance_m}m exceeds the recommended maximum of ${params.max_distance_m}m for ${fiberType}.`);
+                        return;
+                    }
+
+                    let output = `📊 Link Loss Budget Results\n\n**Fiber Type:** ${params.name}\n${'-'.repeat(50)}\n`;
+                    for (const [wl, atten] of Object.entries(params.wavelengths)) {
+                        const maxLoss = (distance_m / 1000 * atten.max_attenuation_db_km) +
+                            (splices * params.splice_loss.max_db) +
+                            (connectors * params.connector_loss.max_db);
+                        const typLoss = (distance_m / 1000 * atten.typical_attenuation_db_km) +
+                            (splices * params.splice_loss.typical_db) +
+                            (connectors * params.connector_loss.typical_db);
+                        output += `📈 **Results for Wavelength: ${wl}**\n  - **Highest Acceptable Loss:** ${maxLoss.toFixed(2)} dB\n  - **Typical Good Performance:** ${typLoss.toFixed(2)} dB\n${'-'.repeat(50)}\n`;
+                    }
+                    setResults(output);
+                } catch (error) {
+                    alert('Input Error: Please enter valid numbers.');
+                }
+            };
+
+            const handleClear = () => {
+                setDistance('');
+                setSpliceCount('');
+                setConnectorCount('');
+                setResults('');
+            };
+
+            const openLink = (url) => window.open(url, '_blank');
+
+            const readmeContent = (
+                <div className={`fixed inset-0 ${theme.bg} ${theme.fg} p-4 overflow-auto`} style={{ fontSize: `${fontSize}px` }}>
+                    <div className="max-w-2xl mx-auto bg-opacity-90">
+                        <h1 className={`text-xl font-bold ${theme.headerFg} mb-4`}>Standards & References</h1>
+                        <p>This calculator uses parameters from major industry standards.</p>
+                        <h2 className="text-lg font-bold mt-4">Official Standards</h2>
+                        <ul className="list-disc ml-6">
+                            <li>ITU-T G.652: Defines attenuation (dB/km) for single-mode fiber. <a className={`link ${theme.linkFg}`} onClick={() => openLink('https://www.itu.int/rec/T-REC-G.652')}>View Standard</a></li>
+                            <li>TIA-568 Series: Sets max loss for connectors (0.75 dB) and splices (0.3 dB). <a className={`link ${theme.linkFg}`} onClick={() => openLink('https://www.tiaonline.org/products-and-services/standards/')}>View Publisher</a></li>
+                            <li>ISO/IEC 11801: The international equivalent of TIA-568. <a className={`link ${theme.linkFg}`} onClick={() => openLink('https://www.iso.org/committee/45838.html')}>View Committee</a></li>
+                        </ul>
+                        <h2 className="text-lg font-bold mt-4">Additional Learning Resources</h2>
+                        <ul className="list-disc ml-6">
+                            <li>Understanding Fiber Loss Calculation <a className={`link ${theme.linkFg}`} onClick={() => openLink('https://www.fs.com/blog/understanding-fiber-loss-what-is-it-and-how-to-calculate-it-3792.html')}>Read on FS.com</a></li>
+                            <li>Single-Mode vs. Multi-Mode Fiber Types <a className={`link ${theme.linkFg}`} onClick={() => openLink('https://www.fs.com/blog/fiber-optic-cable-types-single-mode-vs-multimode-fiber-cable-1310.html')}>Read on FS.com</a></li>
+                        </ul>
+                        <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={() => setShowReadme(false)}>Close</button>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className={`min-h-screen ${theme.bg} ${theme.fg} p-4`} style={{ fontSize: `${fontSize}px` }}>
+                    <div className="max-w-4xl mx-auto">
+                        <h1 className={`text-2xl font-bold ${theme.headerFg} mb-4`}>Advanced Fiber Optic Loss Budget Calculator</h1>
+                        <div className="flex items-center mb-4">
+                            <button className="px-4 py-2 bg-blue-500 text-white rounded mr-4" onClick={() => setShowReadme(true)}>Readme & Links</button>
+                            <label className="flex items-center mr-4">
+                                <input type="checkbox" checked={isDarkMode} onChange={() => setIsDarkMode(!isDarkMode)} className="mr-2" />
+                                Dark Mode
+                            </label>
+                            <div className="flex items-center">
+                                <span className="mr-2">Content Font Size:</span>
+                                <button className="px-2 py-1 bg-gray-300 rounded" onClick={() => setFontSize(Math.max(12, fontSize - 1))}>-</button>
+                                <input
+                                    type="range"
+                                    min="12"
+                                    max="20"
+                                    value={fontSize}
+                                    onChange={(e) => setFontSize(parseInt(e.target.value))}
+                                    className="mx-2"
+                                />
+                                <button className="px-2 py-1 bg-gray-300 rounded" onClick={() => setFontSize(Math.min(20, fontSize + 1))}>+</button>
+                            </div>
+                        </div>
+                        <div className="flex border-b">
+                            <button
+                                className={`px-4 py-2 ${activeTab === 'calculator' ? 'border-b-2 border-blue-500' : ''}`}
+                                onClick={() => setActiveTab('calculator')}
+                            >
+                                Loss Calculator
+                            </button>
+                            <button
+                                className={`px-4 py-2 ${activeTab === 'otdr' ? 'border-b-2 border-blue-500' : ''}`}
+                                onClick={() => setActiveTab('otdr')}
+                            >
+                                OTDR Guide
+                            </button>
+                        </div>
+                        <div className="mt-4">
+                            <div className={`tab-content ${activeTab === 'calculator' ? 'active' : ''}`}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="border p-4 rounded">
+                                        <h2 className={`text-lg font-bold ${theme.headerFg}`}>Input Parameters</h2>
+                                        <div className="mt-2">
+                                            <label className="block">Fiber Type:</label>
+                                            <select
+                                                value={fiberType}
+                                                onChange={(e) => setFiberType(e.target.value)}
+                                                className={`w-full p-2 ${theme.entryBg} ${theme.fg} border rounded`}
+                                            >
+                                                {Object.keys(FIBER_STANDARDS).map((type) => (
+                                                    <option key={type} value={type}>{type}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="mt-2">
+                                            <label className="block">Distance (meters):</label>
+                                            <input
+                                                type="text"
+                                                value={distance}
+                                                onChange={(e) => setDistance(e.target.value)}
+                                                className={`w-full p-2 ${theme.entryBg} ${theme.fg} border rounded`}
+                                            />
+                                        </div>
+                                        <div className="mt-2">
+                                            <label className="block">Splice Count:</label>
+                                            <input
+                                                type="text"
+                                                value={spliceCount}
+                                                onChange={(e) => setSpliceCount(e.target.value)}
+                                                className={`w-full p-2 ${theme.entryBg} ${theme.fg} border rounded`}
+                                            />
+                                        </div>
+                                        <div className="mt-2">
+                                            <label className="block">Connector Count:</label>
+                                            <input
+                                                type="text"
+                                                value={connectorCount}
+                                                onChange={(e) => setConnectorCount(e.target.value)}
+                                                className={`w-full p-2 ${theme.entryBg} ${theme.fg} border rounded`}
+                                            />
+                                        </div>
+                                        <div className="mt-4">
+                                            <button className="px-4 py-2 bg-blue-500 text-white rounded mr-2" onClick={handleCalculate}>Calculate</button>
+                                            <button className="px-4 py-2 bg-gray-500 text-white rounded" onClick={handleClear}>Clear</button>
+                                        </div>
+                                    </div>
+                                    <div className="border p-4 rounded">
+                                        <h2 className={`text-lg font-bold ${theme.headerFg}`}>Results</h2>
+                                        <pre className={`scrollable-text p-2 ${theme.textBg} ${theme.fg} border rounded`}>{results}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={`tab-content ${activeTab === 'otdr' ? 'active' : ''}`}>
+                                <div className="border p-4 rounded mb-4">
+                                    <h2 className={`text-lg font-bold ${theme.headerFg}`}>Example OTDR Trace</h2>
+                                    <p>OTDR image display is not supported in this web version. Place 'otdr_example.png' in your project folder and serve it via a web server to view.</p>
+                                </div>
+                                <div className="border p-4 rounded">
+                                    <h2 className={`text-lg font-bold ${theme.headerFg}`}>How to Read the Report</h2>
+                                    <div className="scrollable-text">
+                                        <h3 className={`text-xl font-bold ${theme.headerFg}`}>Reading an OTDR Trace: A Step-by-Step Guide</h3>
+                                        <h4 className="text-lg font-bold mt-2">Which Wavelength Report to Use?</h4>
+                                        <p><strong>▪ Single-Mode (OS2):</strong> Always use the 1550nm report as your reference. It is more sensitive to bends and losses, giving you the most accurate splice count for your budget.</p>
+                                        <p><strong>▪ Multi-Mode (OMx):</strong> Use the 850nm report. This is the primary transmission wavelength and its higher natural loss provides a 'worst-case' scenario for a safe, conservative budget.</p>
+                                        <h4 className="text-lg font-bold mt-2">Key Features to Identify (using an OS2 1550nm report as an example):</h4>
+                                        <p><strong>1. Fusion Splices (e.g., Event 3 at 2820.13m)</strong><br />A small, sharp drop with no reflection. A loss of &lt;0.1 dB (like 0.042 dB) is a high-quality splice.</p>
+                                        <p><strong>2. End of Fiber (e.g., Event 8 at 7822.36m)</strong><br />The final event is a large reflective spike, marking the end of the line.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {showReadme && readmeContent}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<LossCalculatorApp />, document.getElementById('root'));
     </script>
 </body>
 </html>
