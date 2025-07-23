@@ -26,6 +26,9 @@ const FIBER_STANDARDS = {
     }
 };
 
+// Global results for PDF
+let lastResults = null;
+
 // Segment Management
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
@@ -148,7 +151,7 @@ function toggleCustomInputs() {
     validateAndToggleButton(); // Re-validate on toggle
 }
 
-// Inline Validation and Button Toggle (No Popups)
+// Inline Validation and Button Toggle (Integrated Max Length Check)
 function validateAndToggleButton() {
     let valid = true;
     // Clear all errors first
@@ -156,8 +159,12 @@ function validateAndToggleButton() {
     document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
     document.getElementById('validation-summary').textContent = '';
 
-    // Validate per-segment inputs
+    // Validate per-segment inputs, including max length
     for (let i = 1; i <= segments; i++) {
+        const fiberType = document.getElementById(`fiber-type-${i}`).value;
+        const params = FIBER_STANDARDS[fiberType];
+        const maxKm = params.max_distance_m / 1000;
+
         const fields = [
             { id: `distance-${i}`, min: 0, msg: 'Required: Positive number.' },
             { id: `splice-count-${i}`, min: 0, msg: 'Required: Non-negative integer.' },
@@ -173,6 +180,18 @@ function validateAndToggleButton() {
                 valid = false;
             }
         });
+
+        // Max length check (inline)
+        const distanceInput = document.getElementById(`distance-${i}`);
+        let distance = parseFloat(distanceInput.value);
+        const units = document.getElementById(`units-${i}`).value;
+        if (units === 'meters') distance /= 1000;
+        const distanceErrorEl = document.getElementById(`distance-${i}-error`);
+        if (distance > maxKm) {
+            distanceInput.classList.add('input-error');
+            distanceErrorEl.textContent = `Exceeds max for ${fiberType} (${maxKm.toFixed(1)} km).`;
+            valid = false;
+        }
     }
 
     // Validate global inputs
@@ -202,7 +221,7 @@ function validateAndToggleButton() {
     return valid;
 }
 
-// Calculation (Inline Length Error)
+// Calculation
 function calculate() {
     if (!validateAndToggleButton()) {
         return;
@@ -216,7 +235,6 @@ function calculate() {
     const customSplice = useCustom ? parseFloat(document.getElementById('custom-splice').value) || 0 : null;
     const customConnector = useCustom ? parseFloat(document.getElementById('custom-connector').value) || 0 : null;
 
-    let maxLengthValid = true;
     for (let i = 0; i < segments; i++) {
         const segId = i + 1;
         const fiberType = document.getElementById(`fiber-type-${segId}`).value;
@@ -228,13 +246,6 @@ function calculate() {
         const spliceCount = parseInt(document.getElementById(`splice-count-${segId}`).value) || 0;
         const connectorCount = parseInt(document.getElementById(`connector-count-${segId}`).value) || 0;
 
-        if (distance > params.max_distance_m / 1000) {
-            document.getElementById(`distance-${segId}-error`).textContent = `Exceeds max for ${fiberType} (${(params.max_distance_m / 1000).toFixed(1)} km).`;
-            document.getElementById(`distance-${segId}`).classList.add('input-error');
-            maxLengthValid = false;
-            continue; // Skip calc for this segment but continue to show errors
-        }
-
         const atten = customAtten !== null ? customAtten : params.wavelengths[wl].typical_attenuation_db_km;
         const spliceLoss = customSplice !== null ? customSplice : params.splice_loss.typical_db;
         const connectorLoss = customConnector !== null ? customConnector : params.connector_loss.typical_db;
@@ -243,11 +254,6 @@ function calculate() {
         totalSpliceLoss += spliceCount * spliceLoss;
         totalConnectorLoss += connectorCount * connectorLoss;
         totalDistance += distance;
-    }
-
-    if (!maxLengthValid) {
-        validateAndToggleButton(); // Disable button
-        return;
     }
 
     const totalLoss = totalFiberLoss + totalSpliceLoss + totalConnectorLoss + safetyMargin;
@@ -278,6 +284,17 @@ function calculate() {
 
     document.getElementById('output').innerHTML = output;
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
+
+    // Update global results for PDF
+    lastResults = {
+        totalDistance: totalDistance.toFixed(2),
+        safetyMargin: safetyMargin,
+        totalFiberLoss: totalFiberLoss.toFixed(2),
+        totalSpliceLoss: totalSpliceLoss.toFixed(2),
+        totalConnectorLoss: totalConnectorLoss.toFixed(2),
+        totalLoss: totalLoss.toFixed(2),
+        budgets: budgets
+    };
 }
 
 // Draw Simple Bar Chart (Unchanged)
@@ -301,27 +318,32 @@ function drawChart(fiber, splice, connector, margin) {
     });
 }
 
-// Export PDF (Fixed: Text-based for reliability)
+// Export PDF (Fixed with global results and text-based gen)
 function exportPDF() {
+    if (!lastResults) {
+        document.getElementById('validation-summary').textContent = 'Run calculation first to export.';
+        return;
+    }
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Link Loss Budget Results', 10, 10);
 
     doc.setFontSize(12);
-    doc.text('Total Distance: ' + totalDistance.toFixed(2) + ' km', 10, 20);
-    doc.text('Safety Margin: ' + safetyMargin + ' dB', 10, 30);
+    doc.text(`Total Distance: ${lastResults.totalDistance} km`, 10, 20);
+    doc.text(`Safety Margin: ${lastResults.safetyMargin} dB`, 10, 30);
 
     doc.text('Component Losses:', 10, 40);
-    doc.text('Fiber Attenuation: ' + totalFiberLoss.toFixed(2) + ' dB', 10, 50);
-    doc.text('Splice Loss: ' + totalSpliceLoss.toFixed(2) + ' dB', 10, 60);
-    doc.text('Connector Loss: ' + totalConnectorLoss.toFixed(2) + ' dB', 10, 70);
-    doc.text('Total Loss: ' + totalLoss.toFixed(2) + ' dB', 10, 80);
+    doc.text(`Fiber Attenuation: ${lastResults.totalFiberLoss} dB`, 10, 50);
+    doc.text(`Splice Loss: ${lastResults.totalSpliceLoss} dB`, 10, 60);
+    doc.text(`Connector Loss: ${lastResults.totalConnectorLoss} dB`, 10, 70);
+    doc.text(`Total Loss: ${lastResults.totalLoss} dB`, 10, 80);
 
     doc.text('Budget Analysis:', 10, 90);
-    doc.text('25G: Budget ' + budgets['25G'] + ' dB, Margin ' + (budgets['25G'] - totalLoss).toFixed(2) + ' dB', 10, 100);
-    doc.text('50G: Budget ' + budgets['50G'] + ' dB, Margin ' + (budgets['50G'] - totalLoss).toFixed(2) + ' dB', 10, 110);
-    doc.text('100G: Budget ' + budgets['100G'] + ' dB, Margin ' + (budgets['100G'] - totalLoss).toFixed(2) + ' dB', 10, 120);
+    doc.text(`25G: Budget ${lastResults.budgets['25G']} dB, Margin ${(lastResults.budgets['25G'] - lastResults.totalLoss).toFixed(2)} dB`, 10, 100);
+    doc.text(`50G: Budget ${lastResults.budgets['50G']} dB, Margin ${(lastResults.budgets['50G'] - lastResults.totalLoss).toFixed(2)} dB`, 10, 110);
+    doc.text(`100G: Budget ${lastResults.budgets['100G']} dB, Margin ${(lastResults.budgets['100G'] - lastResults.totalLoss).toFixed(2)} dB`, 10, 120);
 
     doc.save('loss-budget.pdf');
 }
@@ -335,7 +357,8 @@ function copyResults() {
     window.getSelection().addRange(range);
     document.execCommand('copy');
     window.getSelection().removeAllRanges();
-    alert('Results copied to clipboard!');
+    document.getElementById('validation-summary').textContent = 'Results copied to clipboard!';
+    setTimeout(() => document.getElementById('validation-summary').textContent = '', 2000); // Clear after 2s
 }
 
 // Clear Fields (Resets data array too)
@@ -347,6 +370,7 @@ function clearFields() {
     document.getElementById('custom-toggle').checked = false;
     toggleCustomInputs();
     document.getElementById('output').innerHTML = '';
+    lastResults = null; // Clear for PDF
     validateAndToggleButton();
 }
 
