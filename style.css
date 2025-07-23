@@ -46,26 +46,25 @@ body.dark .tab-button.active { background: #2E2E2E; border-bottom: 3px solid #56
 .content-text h1 { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
 .content-text h2 { font-size: 1.1em; font-weight: bold; margin: 15px 0 5px; }
 
-/* Segment Styling (Enhanced Dynamic Layout) */
-.segment { border: 1px solid #DDD; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+/* Segment Container (Dynamic Side-by-Side on Desktop) */
+#segments-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: flex-start; }
+
+/* Segment Styling */
+.segment { border: 1px solid #DDD; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; width: 100%; } /* Fixed width to avoid stretching */
 body.dark .segment { border: 1px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 .segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .segment-header h3 { margin: 0; }
 .remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; }
 .remove-segment:hover { background: #CC0000; }
 
-/* Input Pairs (Left Label, Right Input - Dynamic on Desktop) */
-.segment .inputs-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-@media (min-width: 768px) {
-    .segment .inputs-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
-}
-.pair { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
-.pair label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 120px; } /* Fixed min-width for alignment */
+/* Input Pairs (Left Label, Right Input) */
+.pair { display: grid; grid-template-columns: auto 1fr; gap: 15px; align-items: center; margin-bottom: 15px; }
+.pair label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 100px; } /* Min-width for alignment */
 .pair select, .pair input { width: 100%; }
 
 /* Global Inputs (Same) */
-.global-inputs .pair { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
-.global-inputs label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 120px; }
+.global-inputs .pair { display: grid; grid-template-columns: auto 1fr; gap: 15px; align-items: center; margin-bottom: 15px; }
+.global-inputs label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 100px; }
 
 /* Validation */
 .input-error { border: 2px solid #FF0000 !important; }
@@ -105,7 +104,10 @@ body.dark .modal-content { background: #3C3C3C; color: #FFF; }
 label[title] { position: relative; cursor: help; }
 label[title]:hover::after { content: attr(title); position: absolute; bottom: 100%; left: 0; background: #333; color: #FFF; padding: 5px; border-radius: 4px; white-space: pre-wrap; width: 200px; z-index: 10; }
 
-/* Responsiveness */
+/* Responsiveness (Adjust for Desktop/Mobile) */
+@media (min-width: 768px) {
+    #segments-container { flex-wrap: wrap; justify-content: space-around; } /* Side-by-side on desktop */
+}
 @media (max-width: 600px) {
     .controls { flex-direction: column; align-items: flex-start; }
     .pair { grid-template-columns: 1fr; }
@@ -113,4 +115,5 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
     .tabs { flex-direction: column; }
     .tab-button { margin: 5px 0; }
     #loss-chart { height: 150px; }
+    .segment { max-width: 100%; }
 }
