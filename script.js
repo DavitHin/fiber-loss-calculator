@@ -26,9 +26,6 @@ const FIBER_STANDARDS = {
     }
 };
 
-// Global results for PDF
-let lastResults = null;
-
 // Segment Management
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
@@ -307,55 +304,6 @@ function drawChart(fiber, splice, connector, margin) {
     });
 }
 
-// Export PDF (Enhanced with autoTable for Tables - Matches On-Screen Format)
-function exportPDF() {
-    if (!lastResults) {
-        document.getElementById('validation-summary').textContent = 'Run calculation first to export.';
-        return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.setFontSize(16);
-    doc.text('Link Loss Budget Results', 10, 10);
-
-    doc.setFontSize(12);
-    doc.text(`Total Distance: ${lastResults.totalDistance} km | Safety Margin: ${lastResults.safetyMargin} dB`, 10, 20);
-
-    // Component Losses Table
-    doc.autoTable({
-        head: [['Component', 'Loss (dB)']],
-        body: [
-            ['Fiber Attenuation', lastResults.totalFiberLoss],
-            ['Splice Loss', lastResults.totalSpliceLoss],
-            ['Connector Loss', lastResults.totalConnectorLoss],
-            ['Safety Margin', lastResults.safetyMargin],
-            ['Total Loss', lastResults.totalLoss]
-        ],
-        startY: 30,
-        theme: 'grid',
-        headStyles: { fillColor: [0, 51, 153] }, // Blue header
-        styles: { fontSize: 10, cellPadding: 5 }
-    });
-
-    // Budget Analysis Table
-    doc.autoTable({
-        head: [['Speed', 'Budget (dB)', 'Margin (dB)', 'Status']],
-        body: [
-            ['25G', lastResults.budgets['25G'], (lastResults.budgets['25G'] - lastResults.totalLoss).toFixed(2), (lastResults.budgets['25G'] - lastResults.totalLoss >= 0 ? 'Pass' : 'Fail')],
-            ['50G', lastResults.budgets['50G'], (lastResults.budgets['50G'] - lastResults.totalLoss).toFixed(2), (lastResults.budgets['50G'] - lastResults.totalLoss >= 0 ? 'Pass' : 'Fail')],
-            ['100G', lastResults.budgets['100G'], (lastResults.budgets['100G'] - lastResults.totalLoss).toFixed(2), (lastResults.budgets['100G'] - lastResults.totalLoss >= 0 ? 'Pass' : 'Fail')]
-        ],
-        startY: doc.lastAutoTable.finalY + 10,
-        theme: 'grid',
-        headStyles: { fillColor: [0, 51, 153] },
-        styles: { fontSize: 10, cellPadding: 5 }
-    });
-
-    doc.save('loss-budget.pdf');
-}
-
 // Copy Results (Unchanged, but added inline confirmation)
 function copyResults() {
     const output = document.getElementById('output');
@@ -369,7 +317,7 @@ function copyResults() {
     setTimeout(() => document.getElementById('validation-summary').textContent = '', 2000); // Clear after 2s
 }
 
-// Clear Fields (Resets data array too)
+// Clear Fields (Resets data array too - Removed PDF clear)
 function clearFields() {
     segments = 1;
     segmentData = [{}];
@@ -378,7 +326,6 @@ function clearFields() {
     document.getElementById('custom-toggle').checked = false;
     toggleCustomInputs();
     document.getElementById('output').innerHTML = '';
-    lastResults = null; // Clear for PDF
     validateAndToggleButton();
 }
 
