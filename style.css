@@ -28,6 +28,7 @@ body.dark h1, body.dark h2 { color: #569CD6; }
 .controls { display: flex; justify-content: flex-start; align-items: center; gap: 20px; flex-wrap: wrap; }
 button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
 button:hover { opacity: 0.9; }
+button:disabled { background: #CCC; cursor: not-allowed; opacity: 0.6; }
 .font-control { display: flex; align-items: center; gap: 5px; }
 
 /* Tabs */
@@ -45,18 +46,27 @@ body.dark .tab-button.active { background: #2E2E2E; border-bottom: 3px solid #56
 .content-text h1 { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
 .content-text h2 { font-size: 1.1em; font-weight: bold; margin: 15px 0 5px; }
 
-/* Input Section */
-.input-section { display: grid; grid-template-columns: auto 1fr; gap: 15px; max-width: 500px; background: #FFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-body.dark .input-section { background: #3C3C3C; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-input, select { padding: 8px; border: 1px solid #DDD; border-radius: 4px; }
-body.dark input, body.dark select { background: #1E1E1E; color: #FFF; border: 1px solid #555; }
-.buttons { grid-column: span 2; display: flex; gap: 10px; flex-wrap: wrap; }
-.segment-controls { display: flex; gap: 10px; margin-bottom: 10px; }
-.global-inputs { margin-top: 20px; display: grid; grid-template-columns: auto 1fr; gap: 15px; }
+/* Segment Styling (Enhanced Side-by-Side Layout) */
+.segment { border: 1px solid #DDD; border-radius: 8px; padding: 20px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr; gap: 15px; }
+body.dark .segment { border: 1px solid #555; }
+.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; grid-column: 1 / -1; }
+.segment-header h3 { margin: 0; }
+.remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; }
+.remove-segment:hover { background: #CC0000; }
+
+/* Label-Input Pairs (Left: Label, Right: Input) */
+.segment .pair { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: center; }
+.segment label { text-align: left; font-weight: bold; white-space: nowrap; }
+.segment select, .segment input { width: 100%; }
+
+/* Global Inputs (Same Alignment) */
+.global-inputs .pair { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: center; margin-bottom: 10px; }
+.global-inputs label { text-align: left; font-weight: bold; white-space: nowrap; }
 
 /* Validation */
 .input-error { border: 2px solid #FF0000 !important; }
-.error-message { color: #FF0000; grid-column: span 2; font-size: 0.9em; }
+.error-message { color: #FF0000; font-size: 0.9em; margin-top: -5px; grid-column: 2; }
+#validation-summary { color: #FF0000; font-size: 1em; }
 
 /* Output */
 .output-section { margin-top: 20px; border: 1px solid #DDD; padding: 15px; background: #FFF; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -81,6 +91,12 @@ body.dark .modal-content { background: #3C3C3C; color: #FFF; }
 .close:hover { color: #FFF; }
 .modal-image { max-width: 90%; max-height: 90vh; border-radius: 8px; }
 
+/* Image Modal Close Button (Below Image) */
+#image-modal { flex-direction: column; justify-content: center; align-items: center; }
+.modal-image { margin-bottom: 10px; }
+#image-modal .close { position: static; margin-top: 10px; font-size: 32px; color: #FFF; cursor: pointer; }
+#image-modal .close:hover { color: #CCC; }
+
 /* Tooltips (for educational help) */
 label[title] { position: relative; cursor: help; }
 label[title]:hover::after { content: attr(title); position: absolute; bottom: 100%; left: 0; background: #333; color: #FFF; padding: 5px; border-radius: 4px; white-space: pre-wrap; width: 200px; z-index: 10; }
@@ -88,33 +104,9 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
 /* Responsiveness */
 @media (max-width: 600px) {
     .controls { flex-direction: column; align-items: flex-start; }
-    .input-section, .global-inputs { grid-template-columns: 1fr; gap: 10px; padding: 15px; }
+    .segment .pair, .global-inputs .pair { grid-template-columns: 1fr; }
+    .error-message { grid-column: 1; }
     .tabs { flex-direction: column; }
     .tab-button { margin: 5px 0; }
     #loss-chart { height: 150px; }
-}
-
-/* Segment Styling (Enhanced Layout) */
-.segment { border: 1px solid #DDD; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
-body.dark .segment { border: 1px solid #555; }
-.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.segment-header h3 { margin: 0; }
-.remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; }
-.remove-segment:hover { background: #CC0000; }
-
-/* Label-Input Pairs (Left: Label, Right: Input) */
-.segment label { grid-column: 1; text-align: left; font-weight: bold; align-self: center; }
-.segment select, .segment input { grid-column: 2; justify-self: stretch; }
-.segment > * { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
-.error-message { grid-column: 2; }
-
-/* Global Inputs (Same Alignment) */
-.global-inputs > * { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
-.global-inputs label { text-align: left; font-weight: bold; align-self: center; }
-.global-inputs input, .global-inputs select { justify-self: stretch; }
-
-/* Responsiveness (Stack on Mobile) */
-@media (max-width: 600px) {
-    .segment > *, .global-inputs > * { grid-template-columns: 1fr; }
-    .error-message { grid-column: 1; }
 }
