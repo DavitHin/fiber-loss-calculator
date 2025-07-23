@@ -83,7 +83,7 @@
     </div>
 
 
-    <div id="readme-modal" class="modal" aria-label="Readme and Standards Modal">
+<div id="readme-modal" class="modal" aria-label="Readme and Standards Modal">
     <div class="modal-content">
         <span class="close" onclick="closeReadme()" aria-label="Close">&times;</span>
         <h1>Standards & References (Non-Biased)</h1>
@@ -95,9 +95,13 @@
         <a href="https://global.ihs.com/standards/tia/tia-568?search=true" target="_blank">View Standards (with Previews)</a> | <a href="https://web.archive.org/web/20230328105150/https://tiaonline.org/what-we-do/engineering-committees/tr-42/" target="_blank">Archived Overview</a></p>
         <p>▪ ISO/IEC 11801: The international equivalent of TIA-568.<br>
         <a href="https://www.iso.org/standard/76114.html" target="_blank">View Standard (with Preview)</a> | <a href="https://web.archive.org/web/20240101000000/https://www.iso.org/standard/76114.html" target="_blank">Archived Page</a></p>
-        <h2>Power Budgets Explanation (100G Focus)</h2>
-        <p>Power budgets are maximum allowable loss (dB) for reliable operation in applications like 100G Ethernet (common for data center interconnects). They come from standards like IEEE 802.3. Example: For 100G on OS2, budget is ~5 dB (for long-reach). The app compares your total loss to this for Pass/Fail status. Budgets vary by reach (short/long) and fiber—adjust safety margin for conservatism.<br>
-        ▪ IEEE 802.3 (100G Budgets): <a href="https://standards.ieee.org/ieee/802.3/6943/" target="_blank">View Standard (Preview)</a> | <a href="https://web.archive.org/web/20230101000000/https://www.ieee802.org/3/" target="_blank">Archived IEEE 802.3 Site</a></p>
+        <h2>Power Budgets Explanation (25G/50G/100G Focus)</h2>
+        <p>Power budgets are maximum allowable loss (dB) for reliable operation in high-speed Ethernet (e.g., data center interconnects). They come from standards like IEEE 802.3. The app compares your total loss to budgets for 25G, 50G, and 100G, showing Pass/Fail with margins. Examples (approximate; verify for your setup):<br>
+        - 25G: ~1.8-6 dB (short/long reach).<br>
+        - 50G: ~1.6-5 dB.<br>
+        - 100G: ~1.5-5 dB (e.g., 100GBASE-LR4 for OS2).<br>
+        Budgets vary by reach/fiber—use safety margin for conservatism.<br>
+        ▪ IEEE 802.3 (Budgets): <a href="https://standards.ieee.org/ieee/802.3/6943/" target="_blank">View Standard (Preview)</a> | <a href="https://web.archive.org/web/20230101000000/https://www.ieee802.org/3/" target="_blank">Archived IEEE 802.3 Site</a></p>
         <h2>Additional Learning Resources (Neutral Articles)</h2>
         <p>▪ Understanding Fiber Loss Calculation<br>
         <a href="https://www.fs.com/blog/understanding-fiber-loss-what-is-it-and-how-to-calculate-it-3792.html" target="_blank">Read on FS.com</a></p>
