@@ -36,7 +36,6 @@
         </div>
         <div class="segment-controls">
             <button onclick="addSegment()">Add Segment (Max 3)</button>
-            <button onclick="removeSegment()">Remove Last Segment</button>
         </div>
         <div class="global-inputs">
             <label title="Add a buffer for aging, bends, or uncertainties (default 3 dB).">Safety Margin (dB):</label>
@@ -104,8 +103,8 @@
     </div>
 
     <div id="image-modal" class="modal" aria-label="Enlarged Image Modal">
-        <span class="close" onclick="closeImageModal()" aria-label="Close">&times;</span>
         <img src="otdr_example.png" alt="Enlarged OTDR Trace" class="modal-image">
+        <span class="close" onclick="closeImageModal()" aria-label="Close">&times;</span>
     </div>
 
     <script src="script.js"></script>
