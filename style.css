@@ -47,14 +47,14 @@ body.dark .tab-button.active { background: #2E2E2E; border-bottom: 3px solid #56
 .content-text h2 { font-size: 1.1em; font-weight: bold; margin: 15px 0 5px; }
 
 /* Segment Container (Dynamic Side-by-Side on Desktop) */
-#segments-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: flex-start; }
+#segments-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; } /* Centered for better alignment */
 
 /* Segment Styling */
 .segment { border: 1px solid #DDD; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; width: 100%; } /* Fixed width to avoid stretching */
 body.dark .segment { border: 1px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 .segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .segment-header h3 { margin: 0; }
-.remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; }
+.remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 24px; text-align: center; display: flex; align-items: center; justify-content: center; } /* Centered "x" */
 .remove-segment:hover { background: #CC0000; }
 
 /* Input Pairs (Left Label, Right Input) */
@@ -62,8 +62,8 @@ body.dark .segment { border: 1px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.
 .pair label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 100px; } /* Min-width for alignment */
 .pair select, .pair input { width: 100%; }
 
-/* Global Inputs (Fixed Wide Look) */
-.global-inputs { max-width: 400px; margin: 20px 0; } /* Match segment width */
+/* Global Inputs (Centered and Fixed Wide Look) */
+.global-inputs { max-width: 400px; margin: 20px auto; } /* Centered, match segment width */
 .global-inputs .pair { display: grid; grid-template-columns: auto 1fr; gap: 15px; align-items: center; margin-bottom: 15px; }
 .global-inputs label { text-align: left; font-weight: bold; white-space: nowrap; min-width: 100px; }
 #custom-inputs .pair { margin-bottom: 15px; } /* Consistent spacing for customs */
@@ -71,10 +71,10 @@ body.dark .segment { border: 1px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.
 /* Validation */
 .input-error { border: 2px solid #FF0000 !important; }
 .error-message { color: #FF0000; font-size: 0.9em; margin-top: -5px; grid-column: 2 / span 1; }
-#validation-summary { color: #FF0000; font-size: 1em; }
+#validation-summary { color: #FF0000; font-size: 1em; text-align: center; }
 
-/* Output */
-.output-section { margin-top: 20px; border: 1px solid #DDD; padding: 15px; background: #FFF; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; } /* Limit width for better look */
+/* Output (Centered) */
+.output-section { margin: 20px auto; border: 1px solid #DDD; padding: 15px; background: #FFF; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; } /* Centered, limited width */
 body.dark .output-section { border: 1px solid #555; background: #1E1E1E; }
 .output-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
 .output-table th, .output-table td { border: 1px solid #DDD; padding: 8px; text-align: left; }
@@ -108,7 +108,7 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
 
 /* Responsiveness */
 @media (min-width: 768px) {
-    #segments-container { flex-wrap: wrap; justify-content: space-around; } /* Side-by-side on desktop */
+    #segments-container { flex-wrap: wrap; justify-content: center; } /* Centered side-by-side */
 }
 @media (max-width: 600px) {
     .controls { flex-direction: column; align-items: flex-start; }
@@ -118,4 +118,6 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
     .tab-button { margin: 5px 0; }
     #loss-chart { height: 150px; }
     .segment { max-width: 100%; }
+    .global-inputs { max-width: 100%; }
+    .output-section { max-width: 100%; }
 }
