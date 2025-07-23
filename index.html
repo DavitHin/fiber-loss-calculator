@@ -2,73 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fiber Optic Loss Calculator</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <script>
-        function calculateLoss() {
-            const form = document.getElementById('calc-form');
-            const resultDiv = document.getElementById('result');
-            fetch('/', {
-                method: 'POST',
-                body: new FormData(form),
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
-                } else {
-                    let html = `<h2>📊 Link Loss Budget Results</h2><p><strong>Fiber Type:</strong> ${data.fiber_type}</p><hr>`;
-                    for (const [wl, values] of Object.entries(data.wavelengths)) {
-                        html += `<h3>📈 Results for Wavelength: ${wl}</h3>`;
-                        html += `<p><strong>Highest Acceptable Loss:</strong> <span class="pass">${values.max_loss} dB</span></p>`;
-                        html += `<p><strong>Typical Good Performance:</strong> ${values.typ_loss} dB</p><hr>`;
-                    }
-                    resultDiv.innerHTML = html;
-                }
-            });
-        }
-        function clearFields() {
-            document.getElementById('calc-form').reset();
-            document.getElementById('result').innerHTML = '';
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Fiber Optic Loss Budget Calculator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>Advanced Fiber Optic Loss Budget Calculator</h1>
-        <nav>
-            <a href="/">Calculator</a> | <a href="/instructions">OTDR Guide</a>
-        </nav>
-    </header>
-    <main>
-        <div class="container">
-            <div class="input-section">
-                <h2>Input Parameters</h2>
-                <div id="calc-form" class="form">
-                    <label>Fiber Type:</label>
-                    <select name="fiber_type">
-                        {% for ft in fiber_types %}
-                        <option value="{{ ft }}">{{ ft }}</option>
-                        {% endfor %}
-                    </select>
-                    <label>Distance (meters):</label>
-                    <input type="number" name="distance" required>
-                    <label>Splice Count:</label>
-                    <input type="number" name="splices" required>
-                    <label>Connector Count:</label>
-                    <input type="number" name="connectors" required>
-                    <div class="buttons">
-                        <button type="button" onclick="calculateLoss()">Calculate</button>
-                        <button type="button" onclick="clearFields()">Clear</button>
-                    </div>
-                </div>
-            </div>
-            <div class="output-section">
-                <h2>Results</h2>
-                <div id="result"></div>
+        <div class="controls">
+            <button onclick="showReadme()">Readme & Links</button>
+            <label>
+                <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"> Dark Mode
+            </label>
+            <div class="font-control">
+                <label>Content Font Size:</label>
+                <button onclick="changeFontSize(-1)">-</button>
+                <input type="range" id="font-size-slider" min="8" max="20" value="14" oninput="updateFontSize()">
+                <button onclick="changeFontSize(1)">+</button>
             </div>
         </div>
-    </main>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab('calculator')">Loss Calculator</button>
+        <button class="tab-button" onclick="openTab('otdr')">OTDR Guide</button>
+    </div>
+
+    <div id="calculator" class="tab-content active content-text">
+        <div class="input-section">
+            <label>Fiber Type:</label>
+            <select id="fiber-type">
+                <option value="OS2" selected>OS2</option>
+                <option value="OM3">OM3</option>
+                <option value="OM4">OM4</option>
+                <option value="OM5">OM5</option>
+            </select>
+
+            <label>Distance (meters):</label>
+            <input type="number" id="distance" min="0" step="0.1">
+
+            <label>Splice Count:</label>
+            <input type="number" id="splice-count" min="0" step="1">
+
+            <label>Connector Count:</label>
+            <input type="number" id="connector-count" min="0" step="1">
+
+            <div class="buttons">
+                <button onclick="calculate()">Calculate</button>
+                <button onclick="clearFields()">Clear</button>
+            </div>
+        </div>
+        <div id="output" class="output-section"></div>
+    </div>
+
+    <div id="otdr" class="tab-content content-text">
+        <div class="image-section">
+            <h2>Example OTDR Trace</h2>
+            <img src="otdr_example.png" alt="Example OTDR Trace" id="otdr-image">
+            <p>If image not found, ensure 'otdr_example.png' is in the repo.</p>
+            <a href="otdr_example.png" download>Download OTDR Image</a>
+        </div>
+        <div class="instructions">
+            <h1>Reading an OTDR Trace: A Step-by-Step Guide</h1>
+            <h2>Which Wavelength Report to Use?</h2>
+            <p><strong>▪ Single-Mode (OS2):</strong> Always use the 1550nm report as your reference. It is more sensitive to bends and losses, giving you the most accurate splice count for your budget.</p>
+            <p><strong>▪ Multi-Mode (OMx):</strong> Use the 850nm report. This is the primary transmission wavelength and its higher natural loss provides a 'worst-case' scenario for a safe, conservative budget.</p>
+            <h2>Key Features to Identify (using an OS2 1550nm report as an example):</h2>
+            <p><strong>1. Fusion Splices (e.g., Event 3 at 2820.13m)</strong><br>A small, sharp drop with no reflection. A loss of &lt;0.1 dB (like 0.042 dB) is a high-quality splice.</p>
+            <p><strong>2. End of Fiber (e.g., Event 8 at 7822.36m)</strong><br>The final event is a large reflective spike, marking the end of the line.</p>
+        </div>
+    </div>
+
+    <div id="readme-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeReadme()">&times;</span>
+            <h1>Standards & References</h1>
+            <p>This calculator uses parameters from major industry standards.</p>
+            <h2>Official Standards</h2>
+            <p>▪ ITU-T G.652: Defines attenuation (dB/km) for single-mode fiber.<br>
+            <a href="https://www.itu.int/rec/T-REC-G.652" target="_blank">View Standard</a></p>
+            <p>▪ TIA-568 Series: Sets max loss for connectors (0.75 dB) and splices (0.3 dB).<br>
+            <a href="https://www.tiaonline.org/products-and-services/standards/" target="_blank">View Publisher</a></p>
+            <p>▪ ISO/IEC 11801: The international equivalent of TIA-568.<br>
+            <a href="https://www.iso.org/committee/45838.html" target="_blank">View Committee</a></p>
+            <h2>Additional Learning Resources</h2>
+            <p>▪ Understanding Fiber Loss Calculation<br>
+            <a href="https://www.fs.com/blog/understanding-fiber-loss-what-is-it-and-how-to-calculate-it-3792.html" target="_blank">Read on FS.com</a></p>
+            <p>▪ Single-Mode vs. Multi-Mode Fiber Types<br>
+            <a href="https://www.fs.com/blog/fiber-optic-cable-types-single-mode-vs-multimode-fiber-cable-1310.html" target="_blank">Read on FS.com</a></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
