@@ -1,4 +1,4 @@
-// Data Store (Unchanged)
+// Data Store (Enhanced with Budgets from TIA/ISO/IEEE - e.g., for 10G Ethernet)
 const FIBER_STANDARDS = {
     'OS2': {
         'name': 'Single-Mode (ITU-T G.652.D)', 'max_distance_m': 10000,
@@ -26,7 +26,7 @@ const FIBER_STANDARDS = {
     }
 };
 
-// Segment Management (Fixed: Preserve state with array)
+// Segment Management
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
 
@@ -119,7 +119,7 @@ function saveSegmentData() {
     }
 }
 
-// Update Wavelength Dropdown (Unchanged)
+// Update Wavelength Dropdown
 function updateWavelengthOptions(segId) {
     const fiberType = document.getElementById(`fiber-type-${segId}`).value;
     const wlSelect = document.getElementById(`wavelength-${segId}`);
@@ -129,12 +129,12 @@ function updateWavelengthOptions(segId) {
     });
 }
 
-// Toggle Custom Inputs (Unchanged)
+// Toggle Custom Inputs
 function toggleCustomInputs() {
     document.getElementById('custom-inputs').style.display = document.getElementById('custom-toggle').checked ? 'grid' : 'none';
 }
 
-// Validation (Fixed: Per-input checks, highlights, and messages)
+// Validation
 function validateInputs() {
     let valid = true;
     // Clear all errors first
@@ -164,7 +164,6 @@ function validateInputs() {
     const safetyInput = document.getElementById('safety-margin');
     if (safetyInput.value === '' || isNaN(parseFloat(safetyInput.value)) || parseFloat(safetyInput.value) < 0) {
         safetyInput.classList.add('input-error');
-        // Add error message dynamically if needed (global doesn't have dedicated div, but alert covers)
         valid = false;
     }
 
@@ -182,7 +181,7 @@ function validateInputs() {
     return valid;
 }
 
-// Calculation (Unchanged, but now called after validation)
+// Calculation
 function calculate() {
     if (!validateInputs()) {
         alert('Please fix invalid inputs (highlighted in red).');
@@ -247,7 +246,47 @@ function calculate() {
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
 }
 
-// ... (drawChart, exportPDF, copyResults unchanged)
+// Draw Simple Bar Chart
+function drawChart(fiber, splice, connector, margin) {
+    const canvas = document.getElementById('loss-chart');
+    const ctx = canvas.getContext('2d');
+    const data = [fiber, splice, connector, margin];
+    const labels = ['Fiber', 'Splice', 'Connector', 'Margin'];
+    const colors = ['#003399', '#569CD6', '#3CB371', '#FFA500'];
+    const maxVal = Math.max(...data) * 1.2;
+    const barWidth = canvas.width / data.length - 20;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    data.forEach((val, i) => {
+        const barHeight = (val / maxVal) * canvas.height;
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(i * (barWidth + 20) + 10, canvas.height - barHeight, barWidth, barHeight);
+        ctx.fillStyle = document.body.classList.contains('dark') ? '#FFF' : '#000';
+        ctx.fillText(labels[i], i * (barWidth + 20) + 10, canvas.height - 5);
+        ctx.fillText(val.toFixed(2), i * (barWidth + 20) + 10, canvas.height - barHeight - 5);
+    });
+}
+
+// Export PDF
+function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text('Link Loss Budget Results', 10, 10);
+    doc.fromHTML(document.getElementById('output').innerHTML, 10, 20);
+    doc.save('loss-budget.pdf');
+}
+
+// Copy Results
+function copyResults() {
+    const output = document.getElementById('output');
+    const range = document.createRange();
+    range.selectNode(output);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    alert('Results copied to clipboard!');
+}
 
 // Clear Fields (Resets data array too)
 function clearFields() {
@@ -260,38 +299,25 @@ function clearFields() {
     document.getElementById('output').innerHTML = '';
 }
 
-// Initialize (Unchanged, but calls renderSegments)
-document.addEventListener('DOMContentLoaded', () => {
-    toggleDarkMode();
-    updateFontSize();
-    renderSegments();
-
-    const img = document.getElementById('otdr-image');
-    img.onerror = () => {
-        img.style.display = 'none';
-        document.getElementById('image-fallback').style.display = 'block';
-    };
-});
-
-// Modals, etc. (Unchanged)
-function showReadme() {
-    document.getElementById('readme-modal').style.display = 'flex';
-}
-function closeReadme() {
-    document.getElementById('readme-modal').style.display = 'none';
+// Tab Switching
+function openTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+        tab.style.display = 'none'; // Explicit hide for reliability
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    const activeTab = document.getElementById(tabName);
+    activeTab.classList.add('active');
+    activeTab.style.display = 'block';
+    document.querySelector(`button[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-function enlargeImage() {
-    document.getElementById('image-modal').style.display = 'flex';
-}
-function closeImageModal() {
-    document.getElementById('image-modal').style.display = 'none';
-}
-
+// Dark Mode Toggle
 function toggleDarkMode() {
     document.body.classList.toggle('dark', document.getElementById('dark-mode-toggle').checked);
 }
 
+// Font Size Update
 let fontSize = 14;
 function updateFontSize() {
     fontSize = parseInt(document.getElementById('font-size-slider').value);
@@ -309,3 +335,34 @@ function changeFontSize(delta) {
         updateFontSize();
     }
 }
+
+// Readme Modal
+function showReadme() {
+    document.getElementById('readme-modal').style.display = 'flex';
+}
+function closeReadme() {
+    document.getElementById('readme-modal').style.display = 'none';
+}
+
+// Image Enlargement Modal
+function enlargeImage() {
+    document.getElementById('image-modal').style.display = 'flex';
+}
+function closeImageModal() {
+    document.getElementById('image-modal').style.display = 'none';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    toggleDarkMode(); // Dark mode default
+    updateFontSize(); // Initial font size
+    renderSegments(); // Initial segment
+    openTab('calculator'); // Ensure calculator is active on load
+
+    // Image check
+    const img = document.getElementById('otdr-image');
+    img.onerror = () => {
+        img.style.display = 'none';
+        document.getElementById('image-fallback').style.display = 'block';
+    };
+});
