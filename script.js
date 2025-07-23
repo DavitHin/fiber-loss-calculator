@@ -26,7 +26,7 @@ const FIBER_STANDARDS = {
     }
 };
 
-// Segment Management
+// Segment Management (Fixed: Preserve state with array)
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
 
@@ -58,36 +58,48 @@ function renderSegments() {
                     <h3>Segment ${segId}</h3>
                     <button class="remove-segment" onclick="removeSegment(${i})" aria-label="Remove Segment ${segId}">×</button>
                 </div>
-                <label title="Select fiber type for this segment.">Fiber Type:</label>
-                <select id="fiber-type-${segId}" onchange="updateWavelengthOptions(${segId})" aria-label="Fiber Type Segment ${segId}">
-                    <option value="OS2">OS2</option>
-                    <option value="OM3">OM3</option>
-                    <option value="OM4">OM4</option>
-                    <option value="OM5">OM5</option>
-                </select>
+                <div class="pair">
+                    <label title="Select fiber type for this segment.">Fiber Type:</label>
+                    <select id="fiber-type-${segId}" onchange="updateWavelengthOptions(${segId})" aria-label="Fiber Type Segment ${segId}">
+                        <option value="OS2">OS2</option>
+                        <option value="OM3">OM3</option>
+                        <option value="OM4">OM4</option>
+                        <option value="OM5">OM5</option>
+                    </select>
+                </div>
                 <div id="fiber-type-${segId}-error" class="error-message"></div>
 
-                <label title="Select wavelength for calculations.">Wavelength:</label>
-                <select id="wavelength-${segId}" aria-label="Wavelength Segment ${segId}"></select>
+                <div class="pair">
+                    <label title="Select wavelength for calculations.">Wavelength:</label>
+                    <select id="wavelength-${segId}" aria-label="Wavelength Segment ${segId}"></select>
+                </div>
                 <div id="wavelength-${segId}-error" class="error-message"></div>
 
-                <label title="Distance in selected units (converts automatically).">Distance:</label>
-                <input type="number" id="distance-${segId}" min="0" step="0.1" placeholder="e.g., 1000" aria-label="Distance Segment ${segId}">
+                <div class="pair">
+                    <label title="Distance in selected units (converts automatically).">Distance:</label>
+                    <input type="number" id="distance-${segId}" min="0" step="0.1" placeholder="e.g., 1000" aria-label="Distance Segment ${segId}">
+                </div>
                 <div id="distance-${segId}-error" class="error-message"></div>
 
-                <label title="Toggle units between km and meters.">Units:</label>
-                <select id="units-${segId}" aria-label="Units Segment ${segId}">
-                    <option value="km">km</option>
-                    <option value="meters">meters</option>
-                </select>
+                <div class="pair">
+                    <label title="Toggle units between km and meters.">Units:</label>
+                    <select id="units-${segId}" aria-label="Units Segment ${segId}">
+                        <option value="km">km</option>
+                        <option value="meters">meters</option>
+                    </select>
+                </div>
                 <div id="units-${segId}-error" class="error-message"></div>
 
-                <label title="Number of splices in this segment.">Splice Count:</label>
-                <input type="number" id="splice-count-${segId}" min="0" step="1" placeholder="e.g., 2" aria-label="Splice Count Segment ${segId}">
+                <div class="pair">
+                    <label title="Number of splices in this segment.">Splice Count:</label>
+                    <input type="number" id="splice-count-${segId}" min="0" step="1" placeholder="e.g., 2" aria-label="Splice Count Segment ${segId}">
+                </div>
                 <div id="splice-count-${segId}-error" class="error-message"></div>
 
-                <label title="Number of connectors in this segment.">Connector Count:</label>
-                <input type="number" id="connector-count-${segId}" min="0" step="1" placeholder="e.g., 4" aria-label="Connector Count Segment ${segId}">
+                <div class="pair">
+                    <label title="Number of connectors in this segment.">Connector Count:</label>
+                    <input type="number" id="connector-count-${segId}" min="0" step="1" placeholder="e.g., 4" aria-label="Connector Count Segment ${segId}">
+                </div>
                 <div id="connector-count-${segId}-error" class="error-message"></div>
             </div>
         `);
@@ -104,6 +116,7 @@ function renderSegments() {
             updateWavelengthOptions(segId); // Initial for new segments
         }
     }
+    validateAndToggleButton(); // Check validation after render
 }
 
 function saveSegmentData() {
@@ -132,27 +145,29 @@ function updateWavelengthOptions(segId) {
 // Toggle Custom Inputs
 function toggleCustomInputs() {
     document.getElementById('custom-inputs').style.display = document.getElementById('custom-toggle').checked ? 'grid' : 'none';
+    validateAndToggleButton(); // Re-validate on toggle
 }
 
-// Validation
-function validateInputs() {
+// Inline Validation and Button Toggle (No Popups)
+function validateAndToggleButton() {
     let valid = true;
     // Clear all errors first
     document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
     document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+    document.getElementById('validation-summary').textContent = '';
 
     // Validate per-segment inputs
     for (let i = 1; i <= segments; i++) {
         const fields = [
-            { id: `distance-${i}`, min: 0, msg: 'Distance must be a positive number.' },
-            { id: `splice-count-${i}`, min: 0, msg: 'Splice count must be a non-negative integer.' },
-            { id: `connector-count-${i}`, min: 0, msg: 'Connector count must be a non-negative integer.' }
+            { id: `distance-${i}`, min: 0, msg: 'Required: Positive number.' },
+            { id: `splice-count-${i}`, min: 0, msg: 'Required: Non-negative integer.' },
+            { id: `connector-count-${i}`, min: 0, msg: 'Required: Non-negative integer.' }
         ];
         fields.forEach(field => {
             const input = document.getElementById(field.id);
             const errorEl = document.getElementById(`${field.id}-error`);
             const value = parseFloat(input.value);
-            if (input.value === '' || isNaN(value) || value < field.min) {
+            if (input.value.trim() === '' || isNaN(value) || value < field.min) {
                 input.classList.add('input-error');
                 errorEl.textContent = field.msg;
                 valid = false;
@@ -160,9 +175,9 @@ function validateInputs() {
         });
     }
 
-    // Validate global inputs (safety margin, customs if enabled)
+    // Validate global inputs
     const safetyInput = document.getElementById('safety-margin');
-    if (safetyInput.value === '' || isNaN(parseFloat(safetyInput.value)) || parseFloat(safetyInput.value) < 0) {
+    if (safetyInput.value.trim() === '' || isNaN(parseFloat(safetyInput.value)) || parseFloat(safetyInput.value) < 0) {
         safetyInput.classList.add('input-error');
         valid = false;
     }
@@ -171,20 +186,26 @@ function validateInputs() {
         const customFields = ['custom-attenuation', 'custom-splice', 'custom-connector'];
         customFields.forEach(id => {
             const input = document.getElementById(id);
-            if (input.value === '' || isNaN(parseFloat(input.value)) || parseFloat(input.value) < 0) {
+            if (input.value.trim() === '' || isNaN(parseFloat(input.value)) || parseFloat(input.value) < 0) {
                 input.classList.add('input-error');
                 valid = false;
             }
         });
     }
 
+    // Toggle Calculate button
+    const calcButton = document.getElementById('calculate-button');
+    calcButton.disabled = !valid;
+    if (!valid) {
+        document.getElementById('validation-summary').textContent = 'Please fix highlighted fields to calculate.';
+    }
     return valid;
 }
 
-// Calculation
+// Calculation (Call validate first, but no popup)
 function calculate() {
-    if (!validateInputs()) {
-        alert('Please fix invalid inputs (highlighted in red).');
+    if (!validateAndToggleButton()) {
+        // No alert; summary message already shown
         return;
     }
     saveSegmentData(); // Save before calc
@@ -208,7 +229,7 @@ function calculate() {
         const connectorCount = parseInt(document.getElementById(`connector-count-${segId}`).value) || 0;
 
         if (distance > params.max_distance_m / 1000) {
-            alert(`Segment ${segId}: Distance of ${distance} km exceeds max for ${fiberType} (${params.max_distance_m / 1000} km).`);
+            document.getElementById(`distance-${segId}-error`).textContent = `Exceeds max for ${fiberType} (${params.max_distance_m / 1000} km).`;
             return;
         }
 
@@ -297,13 +318,14 @@ function clearFields() {
     document.getElementById('custom-toggle').checked = false;
     toggleCustomInputs();
     document.getElementById('output').innerHTML = '';
+    validateAndToggleButton();
 }
 
-// Tab Switching
+// Tab Switching (Fixed with event listeners for reliability)
 function openTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
-        tab.style.display = 'none'; // Explicit hide for reliability
+        tab.style.display = 'none';
     });
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
     const activeTab = document.getElementById(tabName);
@@ -358,6 +380,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFontSize(); // Initial font size
     renderSegments(); // Initial segment
     openTab('calculator'); // Ensure calculator is active on load
+
+    // Add event listeners for real-time validation on input change/blur
+    document.querySelector('#calculator').addEventListener('input', validateAndToggleButton);
+    document.querySelector('#calculator').addEventListener('blur', validateAndToggleButton, true);
 
     // Image check
     const img = document.getElementById('otdr-image');
