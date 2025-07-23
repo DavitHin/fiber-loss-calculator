@@ -94,21 +94,27 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
     #loss-chart { height: 150px; }
 }
 
-/* Segment Header with Remove Button */
-.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+/* Segment Styling (Enhanced Layout) */
+.segment { border: 1px solid #DDD; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+body.dark .segment { border: 1px solid #555; }
+.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.segment-header h3 { margin: 0; }
 .remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; }
 .remove-segment:hover { background: #CC0000; }
 
-/* Validation */
-.input-error { border: 2px solid #FF0000 !important; }
-.error-message { color: #FF0000; grid-column: span 2; font-size: 0.9em; margin-top: -10px; }
+/* Label-Input Pairs (Left: Label, Right: Input) */
+.segment label { grid-column: 1; text-align: left; font-weight: bold; align-self: center; }
+.segment select, .segment input { grid-column: 2; justify-self: stretch; }
+.segment > * { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
+.error-message { grid-column: 2; }
 
-/* Image Modal Close Button (Moved Below) */
-#image-modal { flex-direction: column; justify-content: center; align-items: center; }
-.modal-image { margin-bottom: 10px; }
-#image-modal .close { position: static; margin-top: 10px; font-size: 32px; color: #FFF; cursor: pointer; }
-#image-modal .close:hover { color: #CCC; }
+/* Global Inputs (Same Alignment) */
+.global-inputs > * { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
+.global-inputs label { text-align: left; font-weight: bold; align-self: center; }
+.global-inputs input, .global-inputs select { justify-self: stretch; }
 
-/* Ensure Label Left, Input Right (Grid) */
-.input-section label { text-align: left; }
-.input-section input, .input-section select { justify-self: start; }
+/* Responsiveness (Stack on Mobile) */
+@media (max-width: 600px) {
+    .segment > *, .global-inputs > * { grid-template-columns: 1fr; }
+    .error-message { grid-column: 1; }
+}
