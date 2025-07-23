@@ -6,8 +6,6 @@
     <title>Advanced Fiber Optic Loss Budget Calculator</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- For PDF Export -->
-    <script src="https://unpkg.com/jspdf-autotable"></script> <!-- For PDF Tables -->
 </head>
 <body class="dark">
     <header>
@@ -59,7 +57,6 @@
         <div class="buttons">
             <button id="calculate-button" onclick="calculate()">Calculate</button>
             <button onclick="clearFields()">Clear</button>
-            <button onclick="exportPDF()">Export PDF</button>
             <button onclick="copyResults()">Copy Results</button>
         </div>
         <div id="validation-summary" class="error-message" style="margin-top: 10px;"></div>
@@ -69,20 +66,17 @@
     <div id="otdr" class="tab-content content-text" aria-label="OTDR Guide Tab">
         <div class="image-section">
             <h2>Example OTDR Trace (Click to Enlarge)</h2>
-            <img src="otdr_example.png" alt="Example OTDR Trace at 1310nm" id="otdr-image" onclick="enlargeImage()">
+            <img src="otdr_example.png" alt="Example OTDR Trace" id="otdr-image" onclick="enlargeImage()">
             <p id="image-fallback" style="display: none;">Image 'otdr_example.png' not found. Upload it to the repo to display here.</p>
         </div>
         <div class="instructions">
             <h1>Reading an OTDR Trace: A Step-by-Step Guide</h1>
             <h2>Which Wavelength Report to Use?</h2>
-            <p><strong>▪ Single-Mode (OS2):</strong> Use both 1310nm and 1550nm reports. 1310nm is good for overall loss; 1550nm is more sensitive to bends/macrobends (higher loss at longer wavelengths indicates issues). Compare them to detect anomalies.</p>
-            <p><strong>▪ Multi-Mode (OMx):</strong> Use 850nm for primary analysis (higher loss, worst-case). Compare with 1300nm if available to check for mode-field mismatches.</p>
-            <h2>Key Features to Identify (Based on Example 1310nm Report):</h2>
-            <p>The example trace (above) shows a single-mode fiber at 1310nm with events:</p>
-            <p><strong>1. Fusion Splices (e.g., Event 3 at 2820.93m, 0.078 dB loss)</strong><br>A small drop with low reflection (0.543 dB). Good splices have <0.1 dB loss. Higher indicates poor fusion.</p>
-            <p><strong>2. Connectors/Bends (e.g., Event 4 at 4741.90m, 0.078 dB loss)</strong><br>Reflective spikes (e.g., -31.82 dB). Check for high loss (>0.75 dB per connector per standards).</p>
-            <p><strong>3. End of Fiber (e.g., Event 8 at 7822.98m, 0.196 dB loss)</strong><br>Large drop/reflection (> -16.29 dB). Marks the link end; total loss ~1.668 dB.</p>
-            <p><strong>Tips:</strong> Look for unexpected events (e.g., high loss/reflection). Use dual-wavelength to diagnose (e.g., higher loss at 1550nm = bend). Total loss should match your budget calc.</p>
+            <p><strong>▪ Single-Mode (OS2):</strong> Always use the 1550nm report as your reference. It is more sensitive to bends and losses, giving you the most accurate splice count for your budget.</p>
+            <p><strong>▪ Multi-Mode (OMx):</strong> Use the 850nm report. This is the primary transmission wavelength and its higher natural loss provides a 'worst-case' scenario for a safe, conservative budget.</p>
+            <h2>Key Features to Identify (using an OS2 1550nm report as an example):</h2>
+            <p><strong>1. Fusion Splices (e.g., Event 3 at 2820.13m)</strong><br>A small, sharp drop with no reflection. A loss of <0.1 dB (like 0.042 dB) is a high-quality splice.</p>
+            <p><strong>2. End of Fiber (e.g., Event 8 at 7822.36m)</strong><br>The final event is a large reflective spike, marking the end of the line.</p>
         </div>
     </div>
 
