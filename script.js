@@ -1,16 +1,16 @@
-// Data Store (Updated with 25G/50G/100G Budgets - Approx from IEEE 802.3)
+// Data Store (Unchanged from last)
 const FIBER_STANDARDS = {
     'OS2': {
         'name': 'Single-Mode (ITU-T G.652.D)', 'max_distance_m': 10000,
         'wavelengths': {'1310nm': {'max_attenuation_db_km': 0.4, 'typical_attenuation_db_km': 0.35}, '1550nm': {'max_attenuation_db_km': 0.3, 'typical_attenuation_db_km': 0.22}},
         'splice_loss': {'max_db': 0.3, 'typical_db': 0.05}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.25},
-        'budgets': {'25G': 6, '50G': 5, '100G': 5} // Approx; 25GBASE-LR ~6 dB, 50G/100G lower for DC interconnects
+        'budgets': {'25G': 6, '50G': 5, '100G': 5}
     },
     'OM3': {
         'name': 'Multimode OM3', 'max_distance_m': 300,
         'wavelengths': {'850nm': {'max_attenuation_db_km': 3.0, 'typical_attenuation_db_km': 2.5}, '1300nm': {'max_attenuation_db_km': 1.5, 'typical_attenuation_db_km': 0.8}},
         'splice_loss': {'max_db': 0.3, 'typical_db': 0.1}, 'connector_loss': {'max_db': 0.75, 'typical_db': 0.3},
-        'budgets': {'25G': 1.8, '50G': 1.6, '100G': 1.5} // Approx for short-reach MMF
+        'budgets': {'25G': 1.8, '50G': 1.6, '100G': 1.5}
     },
     'OM4': {
         'name': 'Multimode OM4', 'max_distance_m': 400,
@@ -25,7 +25,8 @@ const FIBER_STANDARDS = {
         'budgets': {'25G': 1.8, '50G': 1.6, '100G': 1.5}
     }
 };
-// Segment Management (Fixed: Preserve state with array)
+
+// Segment Management
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
 
@@ -147,7 +148,7 @@ function toggleCustomInputs() {
     validateAndToggleButton(); // Re-validate on toggle
 }
 
-// Inline Validation and Button Toggle (Updated for no popups, disabled button, inline remarks)
+// Inline Validation and Button Toggle (No Popups)
 function validateAndToggleButton() {
     let valid = true;
     // Clear all errors first
@@ -201,7 +202,7 @@ function validateAndToggleButton() {
     return valid;
 }
 
-// Calculation (Updated to show table for 25G/50G/100G Pass/Fail)
+// Calculation (Inline Length Error)
 function calculate() {
     if (!validateAndToggleButton()) {
         return;
@@ -215,6 +216,7 @@ function calculate() {
     const customSplice = useCustom ? parseFloat(document.getElementById('custom-splice').value) || 0 : null;
     const customConnector = useCustom ? parseFloat(document.getElementById('custom-connector').value) || 0 : null;
 
+    let maxLengthValid = true;
     for (let i = 0; i < segments; i++) {
         const segId = i + 1;
         const fiberType = document.getElementById(`fiber-type-${segId}`).value;
@@ -227,9 +229,10 @@ function calculate() {
         const connectorCount = parseInt(document.getElementById(`connector-count-${segId}`).value) || 0;
 
         if (distance > params.max_distance_m / 1000) {
-            document.getElementById(`distance-${segId}-error`).textContent = `Exceeds max for ${fiberType} (${params.max_distance_m / 1000} km).`;
-            validateAndToggleButton(); // Re-validate
-            return;
+            document.getElementById(`distance-${segId}-error`).textContent = `Exceeds max for ${fiberType} (${(params.max_distance_m / 1000).toFixed(1)} km).`;
+            document.getElementById(`distance-${segId}`).classList.add('input-error');
+            maxLengthValid = false;
+            continue; // Skip calc for this segment but continue to show errors
         }
 
         const atten = customAtten !== null ? customAtten : params.wavelengths[wl].typical_attenuation_db_km;
@@ -240,6 +243,11 @@ function calculate() {
         totalSpliceLoss += spliceCount * spliceLoss;
         totalConnectorLoss += connectorCount * connectorLoss;
         totalDistance += distance;
+    }
+
+    if (!maxLengthValid) {
+        validateAndToggleButton(); // Disable button
+        return;
     }
 
     const totalLoss = totalFiberLoss + totalSpliceLoss + totalConnectorLoss + safetyMargin;
@@ -271,7 +279,8 @@ function calculate() {
     document.getElementById('output').innerHTML = output;
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
 }
-// Draw Simple Bar Chart
+
+// Draw Simple Bar Chart (Unchanged)
 function drawChart(fiber, splice, connector, margin) {
     const canvas = document.getElementById('loss-chart');
     const ctx = canvas.getContext('2d');
@@ -292,16 +301,32 @@ function drawChart(fiber, splice, connector, margin) {
     });
 }
 
-// Export PDF
+// Export PDF (Fixed: Text-based for reliability)
 function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    doc.setFontSize(16);
     doc.text('Link Loss Budget Results', 10, 10);
-    doc.fromHTML(document.getElementById('output').innerHTML, 10, 20);
+
+    doc.setFontSize(12);
+    doc.text('Total Distance: ' + totalDistance.toFixed(2) + ' km', 10, 20);
+    doc.text('Safety Margin: ' + safetyMargin + ' dB', 10, 30);
+
+    doc.text('Component Losses:', 10, 40);
+    doc.text('Fiber Attenuation: ' + totalFiberLoss.toFixed(2) + ' dB', 10, 50);
+    doc.text('Splice Loss: ' + totalSpliceLoss.toFixed(2) + ' dB', 10, 60);
+    doc.text('Connector Loss: ' + totalConnectorLoss.toFixed(2) + ' dB', 10, 70);
+    doc.text('Total Loss: ' + totalLoss.toFixed(2) + ' dB', 10, 80);
+
+    doc.text('Budget Analysis:', 10, 90);
+    doc.text('25G: Budget ' + budgets['25G'] + ' dB, Margin ' + (budgets['25G'] - totalLoss).toFixed(2) + ' dB', 10, 100);
+    doc.text('50G: Budget ' + budgets['50G'] + ' dB, Margin ' + (budgets['50G'] - totalLoss).toFixed(2) + ' dB', 10, 110);
+    doc.text('100G: Budget ' + budgets['100G'] + ' dB, Margin ' + (budgets['100G'] - totalLoss).toFixed(2) + ' dB', 10, 120);
+
     doc.save('loss-budget.pdf');
 }
 
-// Copy Results
+// Copy Results (Unchanged)
 function copyResults() {
     const output = document.getElementById('output');
     const range = document.createRange();
@@ -325,7 +350,7 @@ function clearFields() {
     validateAndToggleButton();
 }
 
-// Tab Switching (Fixed with event listeners for reliability)
+// Tab Switching (Unchanged)
 function openTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -378,7 +403,7 @@ function closeImageModal() {
     document.getElementById('image-modal').style.display = 'none';
 }
 
-// Initialize (Added event delegation for tabs to ensure clickability)
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     toggleDarkMode(); // Dark mode default
     updateFontSize(); // Initial font size
