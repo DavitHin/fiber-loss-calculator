@@ -26,9 +26,127 @@ const FIBER_STANDARDS = {
     }
 };
 
-// Segment Management (Unchanged from last full version)
+// Segment Management (Fixed: Preserve state with array)
+let segments = 1;
+let segmentData = [{}]; // Array to store data for each segment
 
-// ... (addSegment, removeSegment, renderSegments, saveSegmentData, updateWavelengthOptions, toggleCustomInputs unchanged)
+function addSegment() {
+    if (segments >= 3) return;
+    saveSegmentData(); // Save current before adding
+    segments++;
+    segmentData.push({}); // Add empty for new
+    renderSegments();
+}
+
+function removeSegment(index) {
+    if (segments <= 1) return;
+    saveSegmentData(); // Save before removal
+    segmentData.splice(index, 1); // Remove specific
+    segments--;
+    renderSegments();
+    calculate(); // Auto-recalc
+}
+
+function renderSegments() {
+    const container = document.getElementById('segments-container');
+    container.innerHTML = '';
+    for (let i = 0; i < segments; i++) {
+        const segId = i + 1;
+        container.insertAdjacentHTML('beforeend', `
+            <div class="segment" id="segment-${segId}">
+                <div class="segment-header">
+                    <h3>Segment ${segId}</h3>
+                    <button class="remove-segment" onclick="removeSegment(${i})" aria-label="Remove Segment ${segId}">×</button>
+                </div>
+                <div class="pair">
+                    <label title="Select fiber type for this segment.">Fiber Type:</label>
+                    <select id="fiber-type-${segId}" onchange="updateWavelengthOptions(${segId})" aria-label="Fiber Type Segment ${segId}">
+                        <option value="OS2">OS2</option>
+                        <option value="OM3">OM3</option>
+                        <option value="OM4">OM4</option>
+                        <option value="OM5">OM5</option>
+                    </select>
+                </div>
+                <div id="fiber-type-${segId}-error" class="error-message"></div>
+
+                <div class="pair">
+                    <label title="Select wavelength for calculations.">Wavelength:</label>
+                    <select id="wavelength-${segId}" aria-label="Wavelength Segment ${segId}"></select>
+                </div>
+                <div id="wavelength-${segId}-error" class="error-message"></div>
+
+                <div class="pair">
+                    <label title="Distance in selected units (converts automatically).">Distance:</label>
+                    <input type="number" id="distance-${segId}" min="0" step="0.1" placeholder="e.g., 1000" aria-label="Distance Segment ${segId}">
+                </div>
+                <div id="distance-${segId}-error" class="error-message"></div>
+
+                <div class="pair">
+                    <label title="Toggle units between km and meters.">Units:</label>
+                    <select id="units-${segId}" aria-label="Units Segment ${segId}">
+                        <option value="km">km</option>
+                        <option value="meters">meters</option>
+                    </select>
+                </div>
+                <div id="units-${segId}-error" class="error-message"></div>
+
+                <div class="pair">
+                    <label title="Number of splices in this segment.">Splice Count:</label>
+                    <input type="number" id="splice-count-${segId}" min="0" step="1" placeholder="e.g., 2" aria-label="Splice Count Segment ${segId}">
+                </div>
+                <div id="splice-count-${segId}-error" class="error-message"></div>
+
+                <div class="pair">
+                    <label title="Number of connectors in this segment.">Connector Count:</label>
+                    <input type="number" id="connector-count-${segId}" min="0" step="1" placeholder="e.g., 4" aria-label="Connector Count Segment ${segId}">
+                </div>
+                <div id="connector-count-${segId}-error" class="error-message"></div>
+            </div>
+        `);
+        // Restore data if exists
+        if (segmentData[i]) {
+            document.getElementById(`fiber-type-${segId}`).value = segmentData[i].fiberType || 'OS2';
+            updateWavelengthOptions(segId);
+            document.getElementById(`wavelength-${segId}`).value = segmentData[i].wavelength || Object.keys(FIBER_STANDARDS['OS2'].wavelengths)[0];
+            document.getElementById(`distance-${segId}`).value = segmentData[i].distance || '';
+            document.getElementById(`units-${segId}`).value = segmentData[i].units || 'meters';
+            document.getElementById(`splice-count-${segId}`).value = segmentData[i].spliceCount || '';
+            document.getElementById(`connector-count-${segId}`).value = segmentData[i].connectorCount || '';
+        } else {
+            updateWavelengthOptions(segId); // Initial for new segments
+        }
+    }
+    validateAndToggleButton(); // Check validation after render
+}
+
+function saveSegmentData() {
+    for (let i = 1; i <= segments; i++) {
+        segmentData[i-1] = {
+            fiberType: document.getElementById(`fiber-type-${i}`).value,
+            wavelength: document.getElementById(`wavelength-${i}`).value,
+            distance: document.getElementById(`distance-${i}`).value,
+            units: document.getElementById(`units-${i}`).value,
+            spliceCount: document.getElementById(`splice-count-${i}`).value,
+            connectorCount: document.getElementById(`connector-count-${i}`).value
+        };
+    }
+}
+
+// Update Wavelength Dropdown
+function updateWavelengthOptions(segId) {
+    const fiberType = document.getElementById(`fiber-type-${segId}`).value;
+    const wlSelect = document.getElementById(`wavelength-${segId}`);
+    wlSelect.innerHTML = '';
+    Object.keys(FIBER_STANDARDS[fiberType].wavelengths).forEach(wl => {
+        wlSelect.insertAdjacentHTML('beforeend', `<option value="${wl}">${wl}</option>`);
+    });
+}
+
+// Toggle Custom Inputs
+function toggleCustomInputs() {
+    document.getElementById('custom-inputs').style.display = document.getElementById('custom-toggle').checked ? 'grid' : 'none';
+    validateAndToggleButton(); // Re-validate on toggle
+}
 
 // Inline Validation and Button Toggle (Updated for no popups, disabled button, inline remarks)
 function validateAndToggleButton() {
@@ -149,7 +267,112 @@ function calculate() {
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
 }
 
-// ... (The rest of the code is unchanged from the full version I provided in my last response. To avoid repetition, paste the full script.js from my previous message here, but replace the budgets with the updated ones above and the calculation section with this 100G version.)
+// Draw Simple Bar Chart
+function drawChart(fiber, splice, connector, margin) {
+    const canvas = document.getElementById('loss-chart');
+    const ctx = canvas.getContext('2d');
+    const data = [fiber, splice, connector, margin];
+    const labels = ['Fiber', 'Splice', 'Connector', 'Margin'];
+    const colors = ['#003399', '#569CD6', '#3CB371', '#FFA500'];
+    const maxVal = Math.max(...data) * 1.2;
+    const barWidth = canvas.width / data.length - 20;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    data.forEach((val, i) => {
+        const barHeight = (val / maxVal) * canvas.height;
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(i * (barWidth + 20) + 10, canvas.height - barHeight, barWidth, barHeight);
+        ctx.fillStyle = document.body.classList.contains('dark') ? '#FFF' : '#000';
+        ctx.fillText(labels[i], i * (barWidth + 20) + 10, canvas.height - 5);
+        ctx.fillText(val.toFixed(2), i * (barWidth + 20) + 10, canvas.height - barHeight - 5);
+    });
+}
+
+// Export PDF
+function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text('Link Loss Budget Results', 10, 10);
+    doc.fromHTML(document.getElementById('output').innerHTML, 10, 20);
+    doc.save('loss-budget.pdf');
+}
+
+// Copy Results
+function copyResults() {
+    const output = document.getElementById('output');
+    const range = document.createRange();
+    range.selectNode(output);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    alert('Results copied to clipboard!');
+}
+
+// Clear Fields (Resets data array too)
+function clearFields() {
+    segments = 1;
+    segmentData = [{}];
+    renderSegments();
+    document.getElementById('safety-margin').value = '3';
+    document.getElementById('custom-toggle').checked = false;
+    toggleCustomInputs();
+    document.getElementById('output').innerHTML = '';
+    validateAndToggleButton();
+}
+
+// Tab Switching (Fixed with event listeners for reliability)
+function openTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+        tab.style.display = 'none';
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    const activeTab = document.getElementById(tabName);
+    activeTab.classList.add('active');
+    activeTab.style.display = 'block';
+    document.querySelector(`button[onclick="openTab('${tabName}')"]`).classList.add('active');
+}
+
+// Dark Mode Toggle
+function toggleDarkMode() {
+    document.body.classList.toggle('dark', document.getElementById('dark-mode-toggle').checked);
+}
+
+// Font Size Update
+let fontSize = 14;
+function updateFontSize() {
+    fontSize = parseInt(document.getElementById('font-size-slider').value);
+    document.querySelectorAll('.content-text').forEach(el => {
+        el.style.fontSize = `${fontSize}px`;
+        el.querySelectorAll('h1').forEach(h => h.style.fontSize = `${fontSize + 2}px`);
+        el.querySelectorAll('h2').forEach(h => h.style.fontSize = `${fontSize + 1}px`);
+    });
+}
+function changeFontSize(delta) {
+    const slider = document.getElementById('font-size-slider');
+    let newSize = parseInt(slider.value) + delta;
+    if (newSize >= 8 && newSize <= 20) {
+        slider.value = newSize;
+        updateFontSize();
+    }
+}
+
+// Readme Modal
+function showReadme() {
+    document.getElementById('readme-modal').style.display = 'flex';
+}
+function closeReadme() {
+    document.getElementById('readme-modal').style.display = 'none';
+}
+
+// Image Enlargement Modal
+function enlargeImage() {
+    document.getElementById('image-modal').style.display = 'flex';
+}
+function closeImageModal() {
+    document.getElementById('image-modal').style.display = 'none';
+}
 
 // Initialize (Added event delegation for tabs to ensure clickability)
 document.addEventListener('DOMContentLoaded', () => {
