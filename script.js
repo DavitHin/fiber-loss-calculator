@@ -284,17 +284,6 @@ function calculate() {
 
     document.getElementById('output').innerHTML = output;
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
-
-    // Update global results for PDF
-    lastResults = {
-        totalDistance: totalDistance.toFixed(2),
-        safetyMargin: safetyMargin,
-        totalFiberLoss: totalFiberLoss.toFixed(2),
-        totalSpliceLoss: totalSpliceLoss.toFixed(2),
-        totalConnectorLoss: totalConnectorLoss.toFixed(2),
-        totalLoss: totalLoss.toFixed(2),
-        budgets: budgets
-    };
 }
 
 // Draw Simple Bar Chart (Unchanged)
@@ -318,7 +307,7 @@ function drawChart(fiber, splice, connector, margin) {
     });
 }
 
-// Export PDF (Fixed with global results and text-based gen)
+// Export PDF (Enhanced with autoTable for Tables - Matches On-Screen Format)
 function exportPDF() {
     if (!lastResults) {
         document.getElementById('validation-summary').textContent = 'Run calculation first to export.';
@@ -327,23 +316,42 @@ function exportPDF() {
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+
     doc.setFontSize(16);
     doc.text('Link Loss Budget Results', 10, 10);
 
     doc.setFontSize(12);
-    doc.text(`Total Distance: ${lastResults.totalDistance} km`, 10, 20);
-    doc.text(`Safety Margin: ${lastResults.safetyMargin} dB`, 10, 30);
+    doc.text(`Total Distance: ${lastResults.totalDistance} km | Safety Margin: ${lastResults.safetyMargin} dB`, 10, 20);
 
-    doc.text('Component Losses:', 10, 40);
-    doc.text(`Fiber Attenuation: ${lastResults.totalFiberLoss} dB`, 10, 50);
-    doc.text(`Splice Loss: ${lastResults.totalSpliceLoss} dB`, 10, 60);
-    doc.text(`Connector Loss: ${lastResults.totalConnectorLoss} dB`, 10, 70);
-    doc.text(`Total Loss: ${lastResults.totalLoss} dB`, 10, 80);
+    // Component Losses Table
+    doc.autoTable({
+        head: [['Component', 'Loss (dB)']],
+        body: [
+            ['Fiber Attenuation', lastResults.totalFiberLoss],
+            ['Splice Loss', lastResults.totalSpliceLoss],
+            ['Connector Loss', lastResults.totalConnectorLoss],
+            ['Safety Margin', lastResults.safetyMargin],
+            ['Total Loss', lastResults.totalLoss]
+        ],
+        startY: 30,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 51, 153] }, // Blue header
+        styles: { fontSize: 10, cellPadding: 5 }
+    });
 
-    doc.text('Budget Analysis:', 10, 90);
-    doc.text(`25G: Budget ${lastResults.budgets['25G']} dB, Margin ${(lastResults.budgets['25G'] - lastResults.totalLoss).toFixed(2)} dB`, 10, 100);
-    doc.text(`50G: Budget ${lastResults.budgets['50G']} dB, Margin ${(lastResults.budgets['50G'] - lastResults.totalLoss).toFixed(2)} dB`, 10, 110);
-    doc.text(`100G: Budget ${lastResults.budgets['100G']} dB, Margin ${(lastResults.budgets['100G'] - lastResults.totalLoss).toFixed(2)} dB`, 10, 120);
+    // Budget Analysis Table
+    doc.autoTable({
+        head: [['Speed', 'Budget (dB)', 'Margin (dB)', 'Status']],
+        body: [
+            ['25G', lastResults.budgets['25G'], (lastResults.budgets['25G'] - lastResults.totalLoss).toFixed(2), (lastResults.budgets['25G'] - lastResults.totalLoss >= 0 ? 'Pass' : 'Fail')],
+            ['50G', lastResults.budgets['50G'], (lastResults.budgets['50G'] - lastResults.totalLoss).toFixed(2), (lastResults.budgets['50G'] - lastResults.totalLoss >= 0 ? 'Pass' : 'Fail')],
+            ['100G', lastResults.budgets['100G'], (lastResults.budgets['100G'] - lastResults.totalLoss).toFixed(2), (lastResults.budgets['100G'] - lastResults.totalLoss >= 0 ? 'Pass' : 'Fail')]
+        ],
+        startY: doc.lastAutoTable.finalY + 10,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 51, 153] },
+        styles: { fontSize: 10, cellPadding: 5 }
+    });
 
     doc.save('loss-budget.pdf');
 }
