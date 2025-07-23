@@ -56,10 +56,18 @@ function changeFontSize(delta) {
 
 // Readme Modal
 function showReadme() {
-    document.getElementById('readme-modal').style.display = 'block';
+    document.getElementById('readme-modal').style.display = 'flex';
 }
 function closeReadme() {
     document.getElementById('readme-modal').style.display = 'none';
+}
+
+// Image Enlargement Modal
+function enlargeImage() {
+    document.getElementById('image-modal').style.display = 'flex';
+}
+function closeImageModal() {
+    document.getElementById('image-modal').style.display = 'none';
 }
 
 // Calculation (Ported from Python)
@@ -107,5 +115,13 @@ function clearFields() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    toggleDarkMode(); // Set dark mode default
     updateFontSize(); // Set initial font size
+
+    // Check if image exists (hide if not)
+    const img = document.getElementById('otdr-image');
+    img.onerror = () => {
+        img.style.display = 'none';
+        document.getElementById('image-fallback').style.display = 'block';
+    };
 });
