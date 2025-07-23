@@ -56,11 +56,12 @@
             </div>
         </div>
         <div class="buttons">
-            <button onclick="calculate()">Calculate</button>
+            <button id="calculate-button" onclick="calculate()">Calculate</button>
             <button onclick="clearFields()">Clear</button>
             <button onclick="exportPDF()">Export PDF</button>
             <button onclick="copyResults()">Copy Results</button>
         </div>
+        <div id="validation-summary" class="error-message" style="margin-top: 10px;"></div>
         <div id="output" class="output-section" aria-live="polite"></div>
     </div>
 
