@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Fiber Optic Loss Budget Calculator</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dark">
     <header>
         <h1>Advanced Fiber Optic Loss Budget Calculator</h1>
         <div class="controls">
             <button onclick="showReadme()">Readme & Links</button>
             <label>
-                <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"> Dark Mode
+                <input type="checkbox" id="dark-mode-toggle" checked onchange="toggleDarkMode()"> Dark Mode
             </label>
-            <div class="font-control">
+            <div class="font-control" title="Adjust font size for content (controls remain fixed)">
                 <label>Content Font Size:</label>
                 <button onclick="changeFontSize(-1)">-</button>
                 <input type="range" id="font-size-slider" min="8" max="20" value="14" oninput="updateFontSize()">
@@ -39,13 +40,13 @@
             </select>
 
             <label>Distance (meters):</label>
-            <input type="number" id="distance" min="0" step="0.1">
+            <input type="number" id="distance" min="0" step="0.1" placeholder="e.g., 1000">
 
             <label>Splice Count:</label>
-            <input type="number" id="splice-count" min="0" step="1">
+            <input type="number" id="splice-count" min="0" step="1" placeholder="e.g., 2">
 
             <label>Connector Count:</label>
-            <input type="number" id="connector-count" min="0" step="1">
+            <input type="number" id="connector-count" min="0" step="1" placeholder="e.g., 4">
 
             <div class="buttons">
                 <button onclick="calculate()">Calculate</button>
@@ -57,10 +58,9 @@
 
     <div id="otdr" class="tab-content content-text">
         <div class="image-section">
-            <h2>Example OTDR Trace</h2>
-            <img src="otdr_example.png" alt="Example OTDR Trace" id="otdr-image">
-            <p>If image not found, ensure 'otdr_example.png' is in the repo.</p>
-            <a href="otdr_example.png" download>Download OTDR Image</a>
+            <h2>Example OTDR Trace (Click to Enlarge)</h2>
+            <img src="otdr_example.png" alt="Example OTDR Trace" id="otdr-image" onclick="enlargeImage()">
+            <p id="image-fallback" style="display: none;">Image 'otdr_example.png' not found. Upload it to the repo to display here.</p>
         </div>
         <div class="instructions">
             <h1>Reading an OTDR Trace: A Step-by-Step Guide</h1>
@@ -80,17 +80,22 @@
             <p>This calculator uses parameters from major industry standards.</p>
             <h2>Official Standards</h2>
             <p>▪ ITU-T G.652: Defines attenuation (dB/km) for single-mode fiber.<br>
-            <a href="https://www.itu.int/rec/T-REC-G.652" target="_blank">View Standard</a></p>
+            <a href="https://www.itu.int/rec/T-REC-G.652-201611-I/en" target="_blank">View Standard</a></p>
             <p>▪ TIA-568 Series: Sets max loss for connectors (0.75 dB) and splices (0.3 dB).<br>
-            <a href="https://www.tiaonline.org/products-and-services/standards/" target="_blank">View Publisher</a></p>
+            <a href="https://www.tiaonline.org/standards-development/standards-projects/tia-568-series/" target="_blank">View Standards Project</a></p>
             <p>▪ ISO/IEC 11801: The international equivalent of TIA-568.<br>
-            <a href="https://www.iso.org/committee/45838.html" target="_blank">View Committee</a></p>
+            <a href="https://www.iso.org/standard/76114.html" target="_blank">View Standard</a></p>
             <h2>Additional Learning Resources</h2>
             <p>▪ Understanding Fiber Loss Calculation<br>
             <a href="https://www.fs.com/blog/understanding-fiber-loss-what-is-it-and-how-to-calculate-it-3792.html" target="_blank">Read on FS.com</a></p>
             <p>▪ Single-Mode vs. Multi-Mode Fiber Types<br>
             <a href="https://www.fs.com/blog/fiber-optic-cable-types-single-mode-vs-multimode-fiber-cable-1310.html" target="_blank">Read on FS.com</a></p>
         </div>
+    </div>
+
+    <div id="image-modal" class="modal">
+        <span class="close" onclick="closeImageModal()">&times;</span>
+        <img src="otdr_example.png" alt="Enlarged OTDR Trace" class="modal-image">
     </div>
 
     <script src="script.js"></script>
