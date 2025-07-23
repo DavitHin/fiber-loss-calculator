@@ -1,4 +1,4 @@
-// === Section: Data Store ===
+// Data Store (Unchanged)
 const FIBER_STANDARDS = {
     'OS2': {
         'name': 'Single-Mode (ITU-T G.652.D)', 'max_distance_m': 10000,
@@ -26,12 +26,13 @@ const FIBER_STANDARDS = {
     }
 };
 
-// === Section: Global Variables ===
+// Global results for PDF
+let lastResults = null;
+
+// Segment Management
 let segments = 1;
 let segmentData = [{}]; // Array to store data for each segment
-let lastResults = null; // For PDF export
 
-// === Section: Segment Management ===
 function addSegment() {
     if (segments >= 3) return;
     saveSegmentData(); // Save current before adding
@@ -150,7 +151,7 @@ function toggleCustomInputs() {
     validateAndToggleButton(); // Re-validate on toggle
 }
 
-// Inline Validation and Button Toggle (Integrated Max Length Check)
+// Inline Validation and Button Toggle (Integrated Max Length Check with Precision)
 function validateAndToggleButton() {
     let valid = true;
     // Clear all errors first
@@ -180,7 +181,7 @@ function validateAndToggleButton() {
             }
         });
 
-        // Max length check (inline)
+        // Max length check (inline with precision)
         const distanceInput = document.getElementById(`distance-${i}`);
         let distance = parseFloat(distanceInput.value);
         const units = document.getElementById(`units-${i}`).value;
@@ -188,7 +189,7 @@ function validateAndToggleButton() {
         const distanceErrorEl = document.getElementById(`distance-${i}-error`);
         if (distance > maxKm && distanceInput.value.trim() !== '') { // Only check if value entered
             distanceInput.classList.add('input-error');
-            distanceErrorEl.textContent = `Exceeds max for ${fiberType} (${maxKm.toFixed(1)} km).`;
+            distanceErrorEl.textContent = `Exceeds max for ${fiberType} (${maxKm.toFixed(2)} km).`;
             valid = false;
         }
     }
@@ -283,6 +284,17 @@ function calculate() {
 
     document.getElementById('output').innerHTML = output;
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
+
+    // Update global results for PDF
+    lastResults = {
+        totalDistance: totalDistance.toFixed(2),
+        safetyMargin: safetyMargin,
+        totalFiberLoss: totalFiberLoss.toFixed(2),
+        totalSpliceLoss: totalSpliceLoss.toFixed(2),
+        totalConnectorLoss: totalConnectorLoss.toFixed(2),
+        totalLoss: totalLoss.toFixed(2),
+        budgets: budgets
+    };
 }
 
 // Draw Simple Bar Chart (Unchanged)
