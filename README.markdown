@@ -22,13 +22,15 @@ A web-based tool for calculating fiber optic link loss budgets, with an OTDR gui
 3. In "OTDR Guide" tab: Read explanations and enlarge the example image.
 
 ## How to Read OTDR Results (Full Guide)
-OTDR traces map fiber links. Example (1310nm trace):
-- **Event 1 (0m)**: Launch point (OTDR connection)—ignore.
-- **Event 2 (216.93m, loss 0.044 dB, reflection -31.82 dB)**: Connector (reflection indicates air-glass interface).
-- **Event 3 (2820.93m, loss 0.064 dB, no reflection)**: Fusion splice (low loss, seamless).
-- **Event 4 (4741.90m, loss -0.078 dB)**: Negative loss (gain artifact from fiber mismatch)—check for issues.
-- **End (Event 8, 7822.98m)**: Fiber end (large drop).
-- Tips: Compare 1310nm/1550nm for bends. Total loss must < budget.
+OTDR traces map fiber links. Example (1550nm trace, ~7.82 km):
+- **Event 1 (0m, loss blank, reflectance -31.82 dB)**: Launch connector—baseline.
+- **Event 2 (216.93m, loss 0.064 dB, reflectance blank)**: Fusion splice.
+- **Event 3 (2820.13m, loss 0.042 dB, reflectance blank)**: Fusion splice.
+- **Event 4 (4741.9m, loss -0.078 dB, reflectance blank)**: Gain artifact (mismatch).
+- **Event 5 (5016.26m, loss 0.111 dB, reflectance blank)**: Fusion splice.
+- **Event 6 (7001.84m, loss 0.183 dB, reflectance blank)**: Fusion splice (check high loss).
+- **Event 7 (7822.36m, loss 0.183 dB, reflectance blank)**: Splice or bend.
+- **Event 8 (7822.36m, loss 0.150 dB, reflectance blank)**: End of fiber (total 1.668 dB).
 
 For details, see the app's OTDR tab.
 
