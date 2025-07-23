@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -72,11 +72,16 @@
         <div class="instructions">
             <h1>Reading an OTDR Trace: A Step-by-Step Guide</h1>
             <h2>Which Wavelength Report to Use?</h2>
-            <p><strong>▪ Single-Mode (OS2):</strong> Always use the 1550nm report as your reference. It is more sensitive to bends and losses, giving you the most accurate splice count for your budget.</p>
-            <p><strong>▪ Multi-Mode (OMx):</strong> Use the 850nm report. This is the primary transmission wavelength and its higher natural loss provides a 'worst-case' scenario for a safe, conservative budget.</p>
-            <h2>Key Features to Identify (using an OS2 1550nm report as an example):</h2>
-            <p><strong>1. Fusion Splices (e.g., Event 3 at 2820.13m)</strong><br>A small, sharp drop with no reflection. A loss of <0.1 dB (like 0.042 dB) is a high-quality splice.</p>
-            <p><strong>2. End of Fiber (e.g., Event 8 at 7822.36m)</strong><br>The final event is a large reflective spike, marking the end of the line.</p>
+            <p><strong>▪ Single-Mode (OS2):</strong> Use 1550nm for sensitivity to bends/losses; compare with 1310nm for confirmation.</p>
+            <p><strong>▪ Multi-Mode (OMx):</strong> Use 850nm for worst-case; 1300nm for comparison.</p>
+            <h2>Key Features to Identify (using an OS2 1550nm report as an example):</h1>
+            <p><strong>1. Launch Event (Event 1 at 0m, reflectance -31.82 dB)</strong><br>OTDR connection—baseline, ignore for link analysis.</p>
+            <p><strong>2. Fusion Splice (Event 2 at 216.93m, loss 0.064 dB, no reflectance)</strong><br>Low loss, no reflection—good splice.</p>
+            <p><strong>3. Fusion Splice (Event 3 at 2820.13m, loss 0.042 dB)</strong><br>Excellent low loss.</p>
+            <p><strong>4. Gain Artifact (Event 4 at 4741.9m, loss -0.078 dB)</strong><br>Negative loss from mismatch—inspect splice.</p>
+            <p><strong>5-6. Fusion Splices (e.g., Event 5 at 5016.26m, loss 0.111 dB)</strong><br>Typical low-loss splices.</p>
+            <p><strong>7. Possible Splice/Bend (Event 7 at 7822.36m, loss 0.183 dB)</strong><br>Moderate loss—check.</p>
+            <p><strong>8. End of Fiber (Event 8 at 7822.36m, loss 0.150 dB)</strong><br>Final drop, total loss 1.668 dB.</p>
         </div>
     </div>
 
