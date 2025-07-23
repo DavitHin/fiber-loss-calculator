@@ -1,4 +1,4 @@
-// Data Store (Unchanged from last)
+// Data Store (Unchanged)
 const FIBER_STANDARDS = {
     'OS2': {
         'name': 'Single-Mode (ITU-T G.652.D)', 'max_distance_m': 10000,
@@ -187,7 +187,7 @@ function validateAndToggleButton() {
         const units = document.getElementById(`units-${i}`).value;
         if (units === 'meters') distance /= 1000;
         const distanceErrorEl = document.getElementById(`distance-${i}-error`);
-        if (distance > maxKm) {
+        if (distance > maxKm && distanceInput.value.trim() !== '') { // Only check if value entered
             distanceInput.classList.add('input-error');
             distanceErrorEl.textContent = `Exceeds max for ${fiberType} (${maxKm.toFixed(1)} km).`;
             valid = false;
@@ -221,7 +221,7 @@ function validateAndToggleButton() {
     return valid;
 }
 
-// Calculation
+// Calculation (Unchanged, but max length now handled in validation)
 function calculate() {
     if (!validateAndToggleButton()) {
         return;
@@ -284,17 +284,6 @@ function calculate() {
 
     document.getElementById('output').innerHTML = output;
     drawChart(totalFiberLoss, totalSpliceLoss, totalConnectorLoss, safetyMargin);
-
-    // Update global results for PDF
-    lastResults = {
-        totalDistance: totalDistance.toFixed(2),
-        safetyMargin: safetyMargin,
-        totalFiberLoss: totalFiberLoss.toFixed(2),
-        totalSpliceLoss: totalSpliceLoss.toFixed(2),
-        totalConnectorLoss: totalConnectorLoss.toFixed(2),
-        totalLoss: totalLoss.toFixed(2),
-        budgets: budgets
-    };
 }
 
 // Draw Simple Bar Chart (Unchanged)
