@@ -93,3 +93,22 @@ label[title]:hover::after { content: attr(title); position: absolute; bottom: 10
     .tab-button { margin: 5px 0; }
     #loss-chart { height: 150px; }
 }
+
+/* Segment Header with Remove Button */
+.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.remove-segment { background: #FF0000; color: #FFF; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1; }
+.remove-segment:hover { background: #CC0000; }
+
+/* Validation */
+.input-error { border: 2px solid #FF0000 !important; }
+.error-message { color: #FF0000; grid-column: span 2; font-size: 0.9em; margin-top: -10px; }
+
+/* Image Modal Close Button (Moved Below) */
+#image-modal { flex-direction: column; justify-content: center; align-items: center; }
+.modal-image { margin-bottom: 10px; }
+#image-modal .close { position: static; margin-top: 10px; font-size: 32px; color: #FFF; cursor: pointer; }
+#image-modal .close:hover { color: #CCC; }
+
+/* Ensure Label Left, Input Right (Grid) */
+.input-section label { text-align: left; }
+.input-section input, .input-section select { justify-self: start; }
