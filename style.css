@@ -73,8 +73,9 @@ body.dark .segment { border: 1px solid #555; box-shadow: 0 2px 4px rgba(0,0,0,0.
 
 /* Validation */
 .input-error { border: 2px solid #FF0000 !important; }
-.error-message { color: #FF0000; font-size: 0.9em; margin-top: -5px; grid-column: 2 / span 1; }
-#validation-summary { color: #FF0000; font-size: 1em; text-align: center; }
+.error-message { color: #FF0000; font-size: 0.9em; margin-top: -5px; grid-column: 2 / span 1; text-align: left; }
+#validation-summary { color: #FF0000; font-size: 1em; text-align: center; margin-top: 10px; }
+#no-results-message { color: #FFA500; font-size: 1em; text-align: center; margin-top: 10px; }
 
 /* Output (Centered) */
 .output-section { margin: 20px auto; border: 1px solid #DDD; padding: 15px; background: #FFF; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; } /* Centered, limited width */
